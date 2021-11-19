@@ -9,14 +9,17 @@ import (
 )
 
 var (
-    COLOR_BG_1      = sdl.Color{R:  64, G: 149, B:  64, A: 255}
-    COLOR_BG_2      = sdl.Color{R:  57, G: 161, B:  50, A: 255}
-    COLOR_BG_ROAD   = sdl.Color{R: 131, G: 113, B:  95, A:   1}
+    COLOR_BG_1                  = sdl.Color{R:  64, G: 149, B:  64, A: 255}
+    COLOR_BG_2                  = sdl.Color{R:  57, G: 161, B:  50, A: 255}
+    COLOR_BG_ROAD               = sdl.Color{R: 131, G: 113, B:  95, A: 255}
+    COLOR_BOTBAR_BG             = sdl.Color{R: 130, G: 130, B: 130, A: 255}
+    COLOR_BOTBAR_BORDER         = sdl.Color{R: 100, G: 100, B: 100, A: 255}
 )
 
 const (
     MAP_WIDTH_FIELD = 30
     MAP_HEIGHT_FIELD = 20
+    BOTTOM_BAR_HEIGHT_PX = 100
 )
 
 type Vec2D struct {
@@ -40,7 +43,7 @@ var ROAD_COORDS = [...]Vec2D{
     { 3, 16}, { 7, 16}, {12, 16}, {17, 16}, {18, 16}, {28, 16}, { 3, 17}, { 6, 17},
     { 7, 17}, {12, 17}, {13, 17}, {16, 17}, {17, 17}, {28, 17}, { 3, 18}, { 4, 18},
     { 5, 18}, { 6, 18}, {13, 18}, {14, 18}, {15, 18}, {16, 18}, {28, 18}, {29, 18},
-    {29, 19}, { 0, 20},
+    {29, 19},
 }
 
 type Texture struct {
@@ -71,42 +74,54 @@ func UNUSED(x ...interface{}) {}
 
 //-------------------------------------------------------------------------------
 
-func calcFieldSizePx(windowW int32, windowH int32) float64 {
-    return math.Min(float64(windowW)/MAP_WIDTH_FIELD, float64(windowH)/MAP_HEIGHT_FIELD)
-}
-
-func drawCheckerBg(renderer *sdl.Renderer, windowW int32, windowH int32) {
+func drawCheckerBg(renderer *sdl.Renderer, fieldSizePx float64) {
     renderer.SetDrawColor(COLOR_BG_1.R, COLOR_BG_1.G, COLOR_BG_1.B, COLOR_BG_1.A)
     renderer.Clear()
-
-    gridSizePx := calcFieldSizePx(windowW, windowH)
 
     renderer.SetDrawColor(COLOR_BG_2.R, COLOR_BG_2.G, COLOR_BG_2.B, COLOR_BG_2.A)
     for y :=0; y < MAP_HEIGHT_FIELD; y++ {
         for x:=y%2; x < MAP_WIDTH_FIELD; x+=2 {
-            rect := sdl.Rect{X: int32(float64(x)*gridSizePx), Y: int32(float64(y)*gridSizePx),
-                             W: int32(gridSizePx), H: int32(gridSizePx)}
+            rect := sdl.Rect{X: int32(float64(x)*fieldSizePx), Y: int32(float64(y)*fieldSizePx),
+                             W: int32(fieldSizePx), H: int32(fieldSizePx)}
             renderer.FillRect(&rect)
         }
     }
 }
 
-func drawRoad(renderer *sdl.Renderer, windowW int32, windowH int32) {
-    gridSizePx := calcFieldSizePx(windowW, windowH)
+func drawRoad(renderer *sdl.Renderer, fieldSizePx float64) {
     renderer.SetDrawColor(COLOR_BG_ROAD.R, COLOR_BG_ROAD.G, COLOR_BG_ROAD.B, COLOR_BG_ROAD.A)
 
     for _, field := range ROAD_COORDS {
-        rect := sdl.Rect{X: int32(float64(field.x)*gridSizePx), Y: int32(float64(field.y)*gridSizePx),
-                         W: int32(gridSizePx), H: int32(gridSizePx)}
+        rect := sdl.Rect{X: int32(float64(field.x)*fieldSizePx), Y: int32(float64(field.y)*fieldSizePx),
+                         W: int32(fieldSizePx), H: int32(fieldSizePx)}
         renderer.FillRect(&rect)
     }
 }
 
-//-------------------------------------------------------------------------------
+func drawBottomBar(renderer *sdl.Renderer, winW int32, winH int32) {
+    // Draw border
+    renderer.SetDrawColor(COLOR_BOTBAR_BORDER.R, COLOR_BOTBAR_BORDER.G, COLOR_BOTBAR_BORDER.B, COLOR_BOTBAR_BORDER.A)
+    rect := sdl.Rect{X: 0, Y: winH-BOTTOM_BAR_HEIGHT_PX, W: winW, H: BOTTOM_BAR_HEIGHT_PX}
+    renderer.FillRect(&rect)
+
+    // Fill
+    renderer.SetDrawColor(COLOR_BOTBAR_BG.R, COLOR_BOTBAR_BG.G, COLOR_BOTBAR_BG.B, COLOR_BOTBAR_BG.A)
+    rect = sdl.Rect{X: 8, Y: winH-BOTTOM_BAR_HEIGHT_PX+8, W: winW-16, H: BOTTOM_BAR_HEIGHT_PX-16}
+    renderer.FillRect(&rect)
+
+    // Draw coin texture
+    tex := TEXTURES[TEXTURE_FILENAME_COIN]
+    rect = sdl.Rect{X: 18, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-32, W: 64, H: 64}
+    renderer.Copy(tex.texture, nil, &rect)
+
+}
+
+//-------------------------------- Enemy ----------------------------------------
 
 type IEnemy interface {
     getXPos() int32
     getYPos() int32
+    getHP() int
 
     getTextureName() string
 
@@ -116,11 +131,15 @@ type IEnemy interface {
 type Tank struct {
     xPos int32;
     yPos int32;
+
+    hp int
 }
+var _ IEnemy = (*Tank)(nil)
 
 func (t *Tank) getXPos() int32 { return t.xPos; }
 func (t *Tank) getYPos() int32 { return t.yPos; }
 func (t *Tank) getTextureName() string { return TEXTURE_FILENAME_TANK; }
+func (t *Tank) getHP() int { return t.hp; }
 
 func (t *Tank) render(renderer *sdl.Renderer) {
     tex := TEXTURES[t.getTextureName()]
@@ -151,7 +170,7 @@ func main() {
 
     window, err := sdl.CreateWindow(
             "Tower Defense", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
-            MAP_WIDTH_FIELD*50, MAP_HEIGHT_FIELD*50, sdl.WINDOW_RESIZABLE)
+            MAP_WIDTH_FIELD*40, MAP_HEIGHT_FIELD*40+BOTTOM_BAR_HEIGHT_PX, sdl.WINDOW_RESIZABLE)
     if err != nil {
         fmt.Printf("Failed to create window: %s\n", err.Error())
         panic(err)
@@ -205,14 +224,17 @@ func main() {
         if done {
             break
         }
-        windowW, windowH := window.GetSize()
+        winW, winH := window.GetSize()
 
         window.SetTitle(
             fmt.Sprintf("Tower Defense :: FT: %dms, FPS: %f", frameTime, 1000/float32(frameTime)))
 
 
-        drawCheckerBg(renderer, windowW, windowH)
-        drawRoad(renderer, windowW, windowH)
+        fieldSizePx := math.Min(float64(winW)/MAP_WIDTH_FIELD,
+                                float64(winH-BOTTOM_BAR_HEIGHT_PX)/MAP_HEIGHT_FIELD)
+        drawCheckerBg(renderer, fieldSizePx)
+        drawRoad(renderer, fieldSizePx)
+        drawBottomBar(renderer, winW, winH)
 
 
         renderer.Present()
@@ -229,6 +251,8 @@ func main() {
 
     renderer.Destroy()
     window.Destroy()
+    sdl.Quit()
+    ttf.Quit()
 
     fmt.Println("Window closed")
 }
