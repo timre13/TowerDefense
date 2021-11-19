@@ -52,11 +52,17 @@ type Texture struct {
 const TEXTURE_DIR_PATH = "img"
 
 const (
-    TEXTURE_FILENAME_TANK = "tank.png"
+    TEXTURE_FILENAME_TANK               = "tank/tank.png"
+    TEXTURE_FILENAME_CANNON_BASE        = "cannon/base.png"
+    TEXTURE_FILENAME_CANNON_HEAD        = "cannon/head.png"
+    TEXTURE_FILENAME_COIN               = "coin/coin.png"
 )
 
 var TEXTURES = map[string]*Texture{
-    TEXTURE_FILENAME_TANK: nil,
+    TEXTURE_FILENAME_TANK:              nil,
+    TEXTURE_FILENAME_CANNON_BASE:       nil,
+    TEXTURE_FILENAME_CANNON_HEAD:       nil,
+    TEXTURE_FILENAME_COIN:              nil,
 }
 
 //-------------------------------------------------------------------------------
