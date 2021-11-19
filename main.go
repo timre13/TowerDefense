@@ -147,6 +147,37 @@ func (t *Tank) render(renderer *sdl.Renderer) {
     renderer.Copy(tex.texture, nil, &rect)
 }
 
+//-------------------------------- Tower ----------------------------------------
+
+type ITower interface {
+    getXPos() int32
+    getYPos() int32
+    getHP() int
+
+    getTextureName() string
+
+    render(renderer *sdl.Renderer)
+}
+
+type Cannon struct {
+    xPos int32;
+    yPos int32;
+
+    hp int
+}
+var _ ITower = (*Cannon)(nil)
+
+func (t *Cannon) getXPos() int32 { return t.xPos; }
+func (t *Cannon) getYPos() int32 { return t.yPos; }
+func (t *Cannon) getTextureName() string { return TEXTURE_FILENAME_TANK; }
+func (t *Cannon) getHP() int { return t.hp; }
+
+func (t *Cannon) render(renderer *sdl.Renderer) {
+    tex := TEXTURES[t.getTextureName()]
+    rect := sdl.Rect{X: t.getXPos(), Y: t.getYPos(), W: tex.width, H: tex.height}
+    renderer.Copy(tex.texture, nil, &rect)
+}
+
 //-------------------------------------------------------------------------------
 
 func main() {
