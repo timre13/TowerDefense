@@ -3,10 +3,14 @@ package main
 import (
     "github.com/veandco/go-sdl2/sdl"
     "github.com/veandco/go-sdl2/img"
+    "github.com/veandco/go-sdl2/ttf"
     "fmt"
     "math"
     "os"
 )
+
+const FONT_FILE_PATH = "/usr/share/fonts/truetype/freefont/FreeSans.ttf"
+const DEF_FONT_SIZE = 40
 
 var (
     COLOR_BG_1                  = sdl.Color{R:  64, G: 149, B:  64, A: 255}
@@ -68,6 +72,8 @@ var TEXTURES = map[string]*Texture{
     TEXTURE_FILENAME_COIN:              nil,
 }
 
+var CHAR_TEXTURES = [94]*Texture{}
+
 //-------------------------------------------------------------------------------
 
 func UNUSED(x ...interface{}) {}
@@ -98,9 +104,10 @@ func drawRoad(renderer *sdl.Renderer, fieldSizePx float64) {
     }
 }
 
-func drawBottomBar(renderer *sdl.Renderer, winW int32, winH int32) {
+func drawBottomBar(renderer *sdl.Renderer, winW int32, winH int32, coins int) {
     // Draw border
-    renderer.SetDrawColor(COLOR_BOTBAR_BORDER.R, COLOR_BOTBAR_BORDER.G, COLOR_BOTBAR_BORDER.B, COLOR_BOTBAR_BORDER.A)
+    renderer.SetDrawColor(
+        COLOR_BOTBAR_BORDER.R, COLOR_BOTBAR_BORDER.G, COLOR_BOTBAR_BORDER.B, COLOR_BOTBAR_BORDER.A)
     rect := sdl.Rect{X: 0, Y: winH-BOTTOM_BAR_HEIGHT_PX, W: winW, H: BOTTOM_BAR_HEIGHT_PX}
     renderer.FillRect(&rect)
 
@@ -114,6 +121,15 @@ func drawBottomBar(renderer *sdl.Renderer, winW int32, winH int32) {
     rect = sdl.Rect{X: 18, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-32, W: 64, H: 64}
     renderer.Copy(tex.texture, nil, &rect)
 
+    var offs int32 = 0
+    for _, char := range fmt.Sprint(coins) {
+        tex := CHAR_TEXTURES[char-'!']
+        rect = sdl.Rect{
+            X: 100+offs, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-DEF_FONT_SIZE/2,
+            W: tex.width, H: tex.height}
+        renderer.Copy(tex.texture, nil, &rect)
+        offs += tex.width
+    }
 }
 
 //-------------------------------- Enemy ----------------------------------------
@@ -199,6 +215,11 @@ func main() {
         panic(err)
     }
 
+    err = ttf.Init()
+    if err != nil {
+        panic(err)
+    }
+
     window, err := sdl.CreateWindow(
             "Tower Defense", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
             MAP_WIDTH_FIELD*40, MAP_HEIGHT_FIELD*40+BOTTOM_BAR_HEIGHT_PX, sdl.WINDOW_RESIZABLE)
@@ -226,13 +247,39 @@ func main() {
             panic(err)
         }
         tex := Texture{texture: texture, width: surface.W, height: surface.H}
+        surface.Free()
         TEXTURES[fileName] = &tex
         fmt.Printf("Loaded \"%s\", size: %dx%d\n", fileName, tex.width, tex.height)
         i++
     }
     fmt.Println("Textures:", TEXTURES)
 
+    fmt.Println("Rendering font")
+    font, error := ttf.OpenFont(FONT_FILE_PATH, DEF_FONT_SIZE)
+    if error != nil {
+        panic(error)
+    }
+    for i := range CHAR_TEXTURES {
+        surface, error := font.RenderGlyphBlended(rune('!'+i), sdl.Color{R: 255, G: 255, B: 255, A: 255})
+        if error != nil {
+            panic(error)
+        }
+        tex, error := renderer.CreateTextureFromSurface(surface)
+        if error != nil {
+            panic(error)
+        }
+        texture := Texture{texture: tex, width: surface.W, height: surface.H}
+        surface.Free()
+        CHAR_TEXTURES[i] = &texture
+    }
+    font.Close()
+    font = nil
+
+    coins := 100
+
     //--------------------------- Main loop ------------------------------------
+
+    fmt.Println("Setup done")
 
     done := false
     var startTime uint32 = 1
@@ -260,12 +307,12 @@ func main() {
         window.SetTitle(
             fmt.Sprintf("Tower Defense :: FT: %dms, FPS: %f", frameTime, 1000/float32(frameTime)))
 
-
         fieldSizePx := math.Min(float64(winW)/MAP_WIDTH_FIELD,
                                 float64(winH-BOTTOM_BAR_HEIGHT_PX)/MAP_HEIGHT_FIELD)
         drawCheckerBg(renderer, fieldSizePx)
         drawRoad(renderer, fieldSizePx)
-        drawBottomBar(renderer, winW, winH)
+        if (coins < 0) { coins = 0 }
+        drawBottomBar(renderer, winW, winH, coins)
 
 
         renderer.Present()
@@ -277,6 +324,10 @@ func main() {
     //----------------------------- Cleanup ------------------------------------
 
     for _, texture := range TEXTURES {
+        texture.texture.Destroy()
+    }
+
+    for _, texture := range CHAR_TEXTURES {
         texture.texture.Destroy()
     }
 
