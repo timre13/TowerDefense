@@ -14,7 +14,7 @@
    id="svg8"
    inkscape:version="1.0.2 (e86c870879, 2021-01-15)"
    sodipodi:docname="cannon.svg"
-   inkscape:export-filename="/home/mike/programming/go/TowerDefense/img/cannon_head.png"
+   inkscape:export-filename="/home/mike/programming/go/TowerDefense/img/cannon/base.png"
    inkscape:export-xdpi="192"
    inkscape:export-ydpi="192">
   <defs
@@ -54,10 +54,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.2740096"
-     inkscape:cx="158.82906"
-     inkscape:cy="171.31817"
+     inkscape:cx="142.27335"
+     inkscape:cy="174.10406"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
      showgrid="true"
      units="px"
@@ -66,7 +66,7 @@
      showborder="true"
      inkscape:window-width="1916"
      inkscape:window-height="1058"
-     inkscape:window-x="0"
+     inkscape:window-x="1920"
      inkscape:window-y="20"
      inkscape:window-maximized="1">
     <inkscape:grid
@@ -90,7 +90,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -101,20 +101,20 @@
      style="display:inline"
      sodipodi:insensitive="true">
     <rect
-       style="fill:#808080;stroke-width:0.962174"
+       style="fill:#552200;stroke-width:1.14399"
        id="rect832"
-       width="89.610954"
-       height="89.610954"
-       x="22.927855"
-       y="20.455708"
-       ry="1.3485592e-07" />
+       width="106.54428"
+       height="106.54428"
+       x="14.461192"
+       y="11.989044"
+       ry="1.6033896e-07" />
     <path
-       style="fill:none;stroke:#4d4d4d;stroke-width:0.800095;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 22.927854,20.455708 112.5388,110.06666 v 0 z"
+       style="fill:none;stroke:#803300;stroke-width:3.1458;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 14.461192,11.989045 121.00546,118.53332 v 0 z"
        id="path836" />
     <path
-       style="fill:none;stroke:#4d4d4d;stroke-width:0.800095;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 112.5388,20.455708 22.927854,110.06666 Z"
+       style="fill:none;stroke:#803300;stroke-width:3.1458;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 121.00546,11.989045 14.461192,118.53332 Z"
        id="path838" />
   </g>
   <g
