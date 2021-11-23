@@ -52,6 +52,11 @@ type Vec2D struct {
     y int;
 }
 
+type Vec2DF struct {
+    x float64;
+    y float64;
+}
+
 var ROAD_COORDS = [...]Vec2D{
     { 1,  0}, { 1,  1}, { 1,  2}, { 1,  3}, { 1,  6}, { 1,  7}, { 1,  8}, { 1,  9}, {10,  1},
     {10,  2}, {11, 11}, {11, 12}, {11, 13}, {11, 14}, {11, 15}, {11,  2}, {12, 11}, {12, 15},
@@ -162,6 +167,8 @@ type IEnemy interface {
     getFieldRow() int32
     getHP() int
 
+    update()
+
     render(renderer *sdl.Renderer)
 }
 
@@ -176,6 +183,10 @@ var _ IEnemy = (*Tank)(nil)
 func (t *Tank) getFieldCol() int32 { return t.fieldCol }
 func (t *Tank) getFieldRow() int32 { return t.fieldRow }
 func (t *Tank) getHP() int { return t.hp }
+
+func (t *Tank) update() {
+    // TODO
+}
 
 func (t *Tank) render(renderer *sdl.Renderer) {
     tex := TEXTURES[TEXTURE_FILENAME_TANK]
@@ -201,6 +212,8 @@ type ITower interface {
     setReal(val bool)
     setRotationDeg(val float64)
 
+    update(enemies []IEnemy)
+
     render(renderer *sdl.Renderer)
 }
 
@@ -225,6 +238,13 @@ func (c *Cannon) getRotationDeg() float64 { return c.rotationDeg }
 func (c *Cannon) setReal(val bool) { c.isReal_ = val }
 func (c *Cannon) setRotationDeg(val float64) { c.rotationDeg = val }
 
+func (c *Cannon) update(enemies []IEnemy) {
+    cloCol, cloRow := getClosestEnemyPos(enemies, float64(c.fieldCol), float64(c.fieldRow))
+    rotRad := math.Atan2(float64(cloRow - c.fieldRow), float64(cloCol - c.fieldCol))
+    rotDeg := rotRad * (180/math.Pi) + 90
+    c.rotationDeg += (rotDeg - c.rotationDeg) / 10
+}
+
 func (c *Cannon) render(renderer *sdl.Renderer) {
     // Render body
     tex := TEXTURES[TEXTURE_FILENAME_CANNON_BASE]
@@ -240,6 +260,35 @@ func (c *Cannon) render(renderer *sdl.Renderer) {
         W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}
     renderer.CopyEx(tex.texture, nil, &rect, c.getRotationDeg(), nil, 0)
 }
+
+//-------------------------------------------------------------------------------
+
+func calcDistance(a Vec2DF, b Vec2DF) float64 {
+    xLen := math.Abs(a.x - b.x)
+    yLen := math.Abs(a.y - b.y)
+    return math.Sqrt(xLen*xLen + yLen*yLen)
+}
+
+func getClosestEnemyPos(enemies []IEnemy, col float64, row float64) (int32, int32) {
+    if len(enemies) == 0 {
+        return -1, -1
+    }
+
+    closestDist := -1.0
+    closestI := -1
+    for i, enemy := range enemies {
+        dist := calcDistance(
+            Vec2DF{col, row},
+            Vec2DF{float64(enemy.getFieldCol()), float64(enemy.getFieldRow())})
+        // If this is the first checked or closer than the closest one
+        if closestDist < 0 || dist < closestDist {
+            closestDist = dist
+            closestI = i
+        }
+    }
+    return enemies[closestI].getFieldCol(), enemies[closestI].getFieldRow()
+}
+
 
 //-------------------------------------------------------------------------------
 
@@ -326,7 +375,8 @@ func main() {
 
     coins := 100
     var towers []ITower
-    placedTowerType := TOWER_TYPE_NONE
+    var enemies []IEnemy
+    placedTowerType := TOWER_TYPE_CANNON
 
     isTowerAt := func(col int32, row int32) bool {
         for _, tower := range towers {
@@ -345,6 +395,12 @@ func main() {
         }
         return false
     }
+
+    // TODO: Test -- Remove later
+    tank1 := Tank{3, 3, 10}
+    enemies = append(enemies, &tank1)
+    tank2 := Tank{10, 15, 10}
+    enemies = append(enemies, &tank2)
 
     //--------------------------- Main loop ------------------------------------
 
@@ -399,16 +455,23 @@ func main() {
         window.SetTitle(
             fmt.Sprintf("Tower Defense :: FT: %dms, FPS: %f", frameTime, 1000/float32(frameTime)))
 
+        // TODO: Only do it on window resizing
         FIELD_SIZE_PX = math.Min(float64(winW)/MAP_WIDTH_FIELD,
                                 float64(winH-BOTTOM_BAR_HEIGHT_PX)/MAP_HEIGHT_FIELD)
+
+        // Render environment
         drawCheckerBg(renderer)
         drawRoad(renderer)
         ASSERT_TRUE(coins >= 0)
         drawBottomBar(renderer, winW, winH, coins)
 
-        for _, tower := range towers {
-            tower.render(renderer)
-        }
+        // Update entities
+        for _, enemy := range enemies { enemy.update() }
+        for _, tower := range towers { tower.update(enemies) }
+
+        // Render entities
+        for _, enemy := range enemies { enemy.render(renderer) }
+        for _, tower := range towers { tower.render(renderer) }
 
         renderer.Present()
         sdl.Delay(16)
