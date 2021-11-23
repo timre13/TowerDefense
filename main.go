@@ -33,19 +33,28 @@ const (
     BOTTOM_BAR_HEIGHT_PX = 100
 )
 
+type TowerType int
 const (
-    TOWER_TYPE_NONE             = iota
-
-    TOWER_TYPE_CANNON           = iota
+    TOWER_TYPE_NONE TowerType = iota
+    TOWER_TYPE_CANNON
 )
 
-const (
-    TOWER_PRICE_CANNON          = 10
-)
+func (t TowerType) getPrice() int {
+    switch (t) {
+    default: panic(t)
+    case TOWER_TYPE_NONE:       panic(t)
+    case TOWER_TYPE_CANNON:     return 10
+    }
+}
 
-const (
-    TOWER_HP_CANNON             = 100
-)
+func (t TowerType) getInitialHP() int {
+    switch (t) {
+    default: panic(t)
+    case TOWER_TYPE_NONE:       panic(t)
+    case TOWER_TYPE_CANNON:     return 100
+    }
+}
+
 
 type Vec2D struct {
     x int;
@@ -429,21 +438,26 @@ func main() {
             case sdl.MOUSEBUTTONDOWN:
                 col := int32(float64(mouseX)/FIELD_SIZE_PX)
                 row := int32(float64(mouseY)/FIELD_SIZE_PX)
-                if !isTowerAt(col, row) && !isRoadAt(col, row) {
+                if placedTowerType != TOWER_TYPE_NONE && coins >= placedTowerType.getPrice() &&
+                        !isTowerAt(col, row) && !isRoadAt(col, row) {
+
+                    coins -= placedTowerType.getPrice()
+
+                    var tower ITower
+
                     switch (placedTowerType) {
                     case TOWER_TYPE_CANNON:
-                        if coins >= TOWER_PRICE_CANNON {
-                            coins -= TOWER_PRICE_CANNON
-                            var cannon = Cannon{
-                                fieldCol: col,
-                                fieldRow: row,
-                                isReal_: true, hp: TOWER_HP_CANNON}
-                            towers = append(towers, &cannon)
-                        }
+                        tower = &Cannon{
+                            fieldCol: col,
+                            fieldRow: row,
+                            isReal_: true,
+                            hp: placedTowerType.getInitialHP()}
+                    default: panic(placedTowerType)
                     }
-                    if placedTowerType != TOWER_TYPE_NONE {
-                        fmt.Printf("Placed a tower at {%d, %d}\n", col, row)
-                    }
+
+                    towers = append(towers, tower)
+
+                    fmt.Printf("Placed a tower at {%d, %d}\n", col, row)
                 }
                 //fmt.Printf("{%d, %d}\n", col, row);
             }
