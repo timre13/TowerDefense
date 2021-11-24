@@ -37,21 +37,24 @@ type TowerType int
 const (
     TOWER_TYPE_NONE TowerType = iota
     TOWER_TYPE_CANNON
+    TOWER_TYPE_ROCKETTOWER
 )
 
 func (t TowerType) getPrice() int {
     switch (t) {
     default: panic(t)
-    case TOWER_TYPE_NONE:       panic(t)
-    case TOWER_TYPE_CANNON:     return 10
+    case TOWER_TYPE_NONE:               panic(t)
+    case TOWER_TYPE_CANNON:             return 10
+    case TOWER_TYPE_ROCKETTOWER:        return 50
     }
 }
 
 func (t TowerType) getInitialHP() int {
     switch (t) {
     default: panic(t)
-    case TOWER_TYPE_NONE:       panic(t)
-    case TOWER_TYPE_CANNON:     return 100
+    case TOWER_TYPE_NONE:               panic(t)
+    case TOWER_TYPE_CANNON:             return 100
+    case TOWER_TYPE_ROCKETTOWER:        return 300
     }
 }
 
@@ -96,19 +99,25 @@ type Texture struct {
 const TEXTURE_DIR_PATH = "img"
 
 const (
-    TEXTURE_FILENAME_TANK               = "tank/tank.png"
+    TEXTURE_FILENAME_COIN               = "coin/coin.png"
     TEXTURE_FILENAME_HP                 = "hp/hp.png"
     TEXTURE_FILENAME_CANNON_BASE        = "cannon/base.png"
     TEXTURE_FILENAME_CANNON_HEAD        = "cannon/head.png"
-    TEXTURE_FILENAME_COIN               = "coin/coin.png"
+    TEXTURE_FILENAME_ROCKETTOWER_BASE   = "rocket_tower/base.png"
+    TEXTURE_FILENAME_ROCKETTOWER_HEAD   = "rocket_tower/head.png"
+    TEXTURE_FILENAME_TANK               = "tank/tank.png"
+    TEXTURE_FILENAME_CANNONBALL         = "cannonball/cannonball.png"
 )
 
 var TEXTURES = map[string]*Texture{
-    TEXTURE_FILENAME_TANK:              nil,
+    TEXTURE_FILENAME_COIN:              nil,
     TEXTURE_FILENAME_HP:                nil,
     TEXTURE_FILENAME_CANNON_BASE:       nil,
     TEXTURE_FILENAME_CANNON_HEAD:       nil,
-    TEXTURE_FILENAME_COIN:              nil,
+    TEXTURE_FILENAME_ROCKETTOWER_BASE:  nil,
+    TEXTURE_FILENAME_ROCKETTOWER_HEAD:  nil,
+    TEXTURE_FILENAME_TANK:              nil,
+    TEXTURE_FILENAME_CANNONBALL:        nil,
 }
 
 var CHAR_TEXTURES = [94]*Texture{}
@@ -291,6 +300,52 @@ func (c *Cannon) render(renderer *sdl.Renderer) {
         W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}
     renderer.CopyEx(tex.texture, nil, &rect, c.getRotationDeg(), nil, 0)
 }
+
+
+type RocketTower struct {
+    fieldCol int32;
+    fieldRow int32;
+
+    isReal_ bool;
+
+    rotationDeg float64
+
+    hp int
+}
+var _ ITower = (*RocketTower)(nil)
+
+func (c *RocketTower) getFieldCol() int32 { return c.fieldCol }
+func (c *RocketTower) getFieldRow() int32 { return c.fieldRow }
+func (c *RocketTower) getHP() int { return c.hp; }
+func (c *RocketTower) isReal() bool { return c.isReal_ }
+func (c *RocketTower) getRotationDeg() float64 { return c.rotationDeg }
+
+func (c *RocketTower) setReal(val bool) { c.isReal_ = val }
+func (c *RocketTower) setRotationDeg(val float64) { c.rotationDeg = val }
+
+func (c *RocketTower) update(enemies []IEnemy) {
+    cloCol, cloRow := getClosestEnemyPos(enemies, float64(c.fieldCol), float64(c.fieldRow))
+    rotRad := math.Atan2(float64(cloRow - c.fieldRow), float64(cloCol - c.fieldCol))
+    rotDeg := rotRad * (180/math.Pi) + 90
+    c.rotationDeg += (rotDeg - c.rotationDeg) / 10
+}
+
+func (c *RocketTower) render(renderer *sdl.Renderer) {
+    // Render body
+    tex := TEXTURES[TEXTURE_FILENAME_ROCKETTOWER_BASE]
+    rect := sdl.Rect{
+        X: int32(float64(c.getFieldCol())*FIELD_SIZE_PX), Y: int32(float64(c.getFieldRow())*FIELD_SIZE_PX),
+        W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}
+    renderer.Copy(tex.texture, nil, &rect)
+
+    // Render head
+    tex = TEXTURES[TEXTURE_FILENAME_ROCKETTOWER_HEAD]
+    rect = sdl.Rect{
+        X: int32(float64(c.getFieldCol())*FIELD_SIZE_PX), Y: int32(float64(c.getFieldRow())*FIELD_SIZE_PX),
+        W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}
+    renderer.CopyEx(tex.texture, nil, &rect, c.getRotationDeg(), nil, 0)
+}
+
 
 //-------------------------------------------------------------------------------
 
@@ -477,6 +532,14 @@ func main() {
                             fieldRow: row,
                             isReal_: true,
                             hp: placedTowerType.getInitialHP()}
+
+                    case TOWER_TYPE_ROCKETTOWER:
+                        tower = &RocketTower{
+                            fieldCol: col,
+                            fieldRow: row,
+                            isReal_: true,
+                            hp: placedTowerType.getInitialHP()}
+
                     default: panic(placedTowerType)
                     }
 
