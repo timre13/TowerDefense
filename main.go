@@ -7,6 +7,7 @@ import (
     "fmt"
     "math"
     "os"
+    "github.com/timre13/TowerDefense/texture"
 )
 
 func ASSERT_TRUE(val bool) {
