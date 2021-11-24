@@ -97,6 +97,7 @@ const TEXTURE_DIR_PATH = "img"
 
 const (
     TEXTURE_FILENAME_TANK               = "tank/tank.png"
+    TEXTURE_FILENAME_HP                 = "hp/hp.png"
     TEXTURE_FILENAME_CANNON_BASE        = "cannon/base.png"
     TEXTURE_FILENAME_CANNON_HEAD        = "cannon/head.png"
     TEXTURE_FILENAME_COIN               = "coin/coin.png"
@@ -104,6 +105,7 @@ const (
 
 var TEXTURES = map[string]*Texture{
     TEXTURE_FILENAME_TANK:              nil,
+    TEXTURE_FILENAME_HP:                nil,
     TEXTURE_FILENAME_CANNON_BASE:       nil,
     TEXTURE_FILENAME_CANNON_HEAD:       nil,
     TEXTURE_FILENAME_COIN:              nil,
@@ -141,7 +143,7 @@ func drawRoad(renderer *sdl.Renderer) {
     }
 }
 
-func drawBottomBar(renderer *sdl.Renderer, winW int32, winH int32, coins int) {
+func drawBottomBar(renderer *sdl.Renderer, winW int32, winH int32, coins int, hp int) {
     // Draw border
     renderer.SetDrawColor(
         COLOR_BOTBAR_BORDER.R, COLOR_BOTBAR_BORDER.G, COLOR_BOTBAR_BORDER.B, COLOR_BOTBAR_BORDER.A)
@@ -153,16 +155,36 @@ func drawBottomBar(renderer *sdl.Renderer, winW int32, winH int32, coins int) {
     rect = sdl.Rect{X: 8, Y: winH-BOTTOM_BAR_HEIGHT_PX+8, W: winW-16, H: BOTTOM_BAR_HEIGHT_PX-16}
     renderer.FillRect(&rect)
 
+    var offs int32 = 16
+
     // Draw coin texture
     tex := TEXTURES[TEXTURE_FILENAME_COIN]
-    rect = sdl.Rect{X: 18, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-32, W: 64, H: 64}
+    rect = sdl.Rect{X: offs, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-32, W: 64, H: 64}
     renderer.Copy(tex.texture, nil, &rect)
 
-    var offs int32 = 0
+    // Render coin value
+    offs += 64+5
     for _, char := range fmt.Sprint(coins) {
         tex := CHAR_TEXTURES[char-'!']
         rect = sdl.Rect{
-            X: 100+offs, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-DEF_FONT_SIZE/2,
+            X: offs, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-DEF_FONT_SIZE/2,
+            W: tex.width, H: tex.height}
+        renderer.Copy(tex.texture, nil, &rect)
+        offs += tex.width
+    }
+
+    // Draw HP texture
+    offs += 50
+    tex = TEXTURES[TEXTURE_FILENAME_HP]
+    rect = sdl.Rect{X: offs, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-32, W: 64, H: 64}
+    renderer.Copy(tex.texture, nil, &rect)
+
+    // Render HP value
+    offs += 64+5
+    for _, char := range fmt.Sprint(hp) {
+        tex := CHAR_TEXTURES[char-'!']
+        rect = sdl.Rect{
+            X: offs, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-DEF_FONT_SIZE/2,
             W: tex.width, H: tex.height}
         renderer.Copy(tex.texture, nil, &rect)
         offs += tex.width
@@ -385,6 +407,7 @@ func main() {
     //--------------------------- Variables ------------------------------------
 
     coins := 100
+    hp := 100
     var towers []ITower
     var enemies []IEnemy
     placedTowerType := TOWER_TYPE_CANNON
@@ -479,7 +502,8 @@ func main() {
         drawCheckerBg(renderer)
         drawRoad(renderer)
         ASSERT_TRUE(coins >= 0)
-        drawBottomBar(renderer, winW, winH, coins)
+        ASSERT_TRUE(hp >= 0) // TODO: Handle death
+        drawBottomBar(renderer, winW, winH, coins, hp)
 
         // Update entities
         for _, enemy := range enemies { enemy.update() }
