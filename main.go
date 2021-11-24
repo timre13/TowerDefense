@@ -426,6 +426,11 @@ func main() {
         if err != nil {
             panic(err)
         }
+
+        if surface.W != surface.H {
+            panic(fmt.Sprintf("Non-rectangular texture: %s: %dx%d", path, surface.W, surface.H))
+        }
+
         texture, err := renderer.CreateTextureFromSurface(surface)
         if err != nil {
             panic(err)
