@@ -28,9 +28,9 @@ var (
 )
 
 const (
-    MAP_WIDTH_FIELD = 30
-    MAP_HEIGHT_FIELD = 20
-    BOTTOM_BAR_HEIGHT_PX = 100
+    MAP_WIDTH_FIELD         = 16
+    MAP_HEIGHT_FIELD        = 8
+    BOTTOM_BAR_HEIGHT_PX    = 100
 )
 
 type TowerType int
@@ -325,9 +325,11 @@ func main() {
         panic(err)
     }
 
+    const maxWinHeight = 900
     window, err := sdl.CreateWindow(
             "Tower Defense", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
-            MAP_WIDTH_FIELD*40, MAP_HEIGHT_FIELD*40+BOTTOM_BAR_HEIGHT_PX, sdl.WINDOW_RESIZABLE)
+            int32((maxWinHeight-BOTTOM_BAR_HEIGHT_PX)*float64(MAP_WIDTH_FIELD)/float64(MAP_HEIGHT_FIELD)), maxWinHeight,
+            sdl.WINDOW_RESIZABLE)
     if err != nil {
         fmt.Printf("Failed to create window: %s\n", err.Error())
         panic(err)
