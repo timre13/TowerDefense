@@ -3,6 +3,8 @@ package common
 import (
     "github.com/veandco/go-sdl2/sdl"
     "github.com/veandco/go-sdl2/ttf"
+    "runtime"
+    "strings"
 )
 
 //-------------------------------------------------------------------------------
@@ -109,23 +111,15 @@ var CHAR_TEXTURES = [94]*Texture{}
 
 func OpenFont(renderer *sdl.Renderer, path string) {
     err := ttf.Init()
-    if err != nil {
-        panic(err)
-    }
+    CheckErr(err)
 
     font, err := ttf.OpenFont(path, DEF_FONT_SIZE)
-    if err != nil {
-        panic(err)
-    }
+    CheckErr(err)
     for i := range CHAR_TEXTURES {
         surface, err := font.RenderGlyphBlended(rune('!'+i), sdl.Color{R: 255, G: 255, B: 255, A: 255})
-        if err != nil {
-            panic(err)
-        }
+        CheckErr(err)
         tex, err := renderer.CreateTextureFromSurface(surface)
-        if err != nil {
-            panic(err)
-        }
+        CheckErr(err)
         texture := Texture{Texture: tex, Width: surface.W, Height: surface.H}
         surface.Free()
         CHAR_TEXTURES[i] = &texture
@@ -134,4 +128,24 @@ func OpenFont(renderer *sdl.Renderer, path string) {
     font = nil
 
     ttf.Quit()
+}
+
+//-------------------------------------------------------------------------------
+
+func ShowErrAndPanic(err string) {
+    // Get the stack trace
+    buf := make([]byte, 1 << 16)
+    runtime.Stack(buf, true)
+
+    // Show error dialog
+    msg := "Error: " + err + "\n\nStack trace: \n" + strings.ReplaceAll(string(buf), "\t", "    ")
+    sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_ERROR, "Error", msg, nil)
+
+    panic(err)
+}
+
+func CheckErr(err error) {
+    if err != nil {
+        ShowErrAndPanic(err.Error())
+    }
 }

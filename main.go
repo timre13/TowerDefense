@@ -102,22 +102,17 @@ func main() {
     //------------------------------ Init --------------------------------------
 
     err = sdl.Init(sdl.INIT_VIDEO | sdl.INIT_AUDIO)
-    if err != nil {
-        fmt.Printf("Failed to initialize SDL2: %s\n", err.Error())
-        panic(err)
-    }
+    CheckErr(err)
 
     const maxWinHeight = 900
     window, err := sdl.CreateWindow(
             "Tower Defense", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
             int32((maxWinHeight-BOTTOM_BAR_HEIGHT_PX)*float64(MAP_WIDTH_FIELD)/float64(MAP_HEIGHT_FIELD)), maxWinHeight,
             sdl.WINDOW_RESIZABLE)
-    if err != nil {
-        fmt.Printf("Failed to create window: %s\n", err.Error())
-        panic(err)
-    }
+    CheckErr(err)
 
     renderer, err := sdl.CreateRenderer(window, 0, 0)
+    CheckErr(err)
     renderer.SetDrawColor(100, 100, 100, 255)
     renderer.Clear()
     renderer.Present()
@@ -128,18 +123,14 @@ func main() {
         path := TEXTURE_DIR_PATH+string(os.PathSeparator)+fileName
         fmt.Printf("[%d/%d] Loading \"%s\"\n", i+1, len(TEXTURES), path)
         surface, err := img.Load(path)
-        if err != nil {
-            panic(err)
-        }
+        CheckErr(err)
 
         if surface.W != surface.H {
-            panic(fmt.Sprintf("Non-rectangular texture: %s: %dx%d", path, surface.W, surface.H))
+            ShowErrAndPanic(fmt.Sprintf("Non-rectangular texture: %s: %dx%d", path, surface.W, surface.H))
         }
 
         texture, err := renderer.CreateTextureFromSurface(surface)
-        if err != nil {
-            panic(err)
-        }
+        CheckErr(err)
         tex := Texture{Texture: texture, Width: surface.W, Height: surface.H}
         surface.Free()
         TEXTURES[fileName] = &tex
