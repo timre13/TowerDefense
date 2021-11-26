@@ -260,6 +260,10 @@ func main() {
         for _, enemy := range enemies { enemy.Render(renderer) }
         for _, tower := range towers { tower.Render(renderer) }
 
+        for _, t := range towers {
+            t.CheckCursorHover(renderer, mouseX, mouseY)
+        }
+
         renderer.Present()
         sdl.Delay(16)
 

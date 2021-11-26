@@ -115,6 +115,8 @@ func OpenFont(renderer *sdl.Renderer, path string) {
 
     font, err := ttf.OpenFont(path, DEF_FONT_SIZE)
     CheckErr(err)
+
+    // FIXME: Support space character
     for i := range CHAR_TEXTURES {
         surface, err := font.RenderGlyphBlended(rune('!'+i), sdl.Color{R: 255, G: 255, B: 255, A: 255})
         CheckErr(err)
@@ -128,6 +130,12 @@ func OpenFont(renderer *sdl.Renderer, path string) {
     font = nil
 
     ttf.Quit()
+}
+
+//-------------------------------------------------------------------------------
+
+func IsInsideRect(r sdl.Rect, x int32, y int32) bool {
+    return x >= r.X && x < r.X+r.W && y >= r.Y && y < r.Y+r.H
 }
 
 //-------------------------------------------------------------------------------
