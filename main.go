@@ -170,9 +170,9 @@ func main() {
     }
 
     // TODO: Test -- Remove later
-    tank1 := enemy.Tank{FieldRow: 3, FieldCol: 3, Hp: 10}
+    tank1 := enemy.Tank{FieldCol: 3, FieldRow: 1, Hp: 10}
     enemies = append(enemies, &tank1)
-    tank2 := enemy.Tank{FieldRow: 10, FieldCol: 15, Hp: 10}
+    tank2 := enemy.Tank{FieldCol: 14, FieldRow: 5, Hp: 10}
     enemies = append(enemies, &tank2)
 
     //--------------------------- Main loop ------------------------------------
