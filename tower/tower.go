@@ -15,6 +15,7 @@ const (
     TOWER_TYPE_NONE TowerType = iota
     TOWER_TYPE_CANNON
     TOWER_TYPE_ROCKETTOWER
+    TOWER_TYPE__COUNT
 )
 
 func (t TowerType) GetPrice() int {
@@ -58,15 +59,36 @@ func renderTowerInfo(renderer *sdl.Renderer, t ITower, x int32, y int32) {
 }
 
 func renderTower(renderer *sdl.Renderer, t ITower, bodyTexName string, headTexName string) {
-    // Render body
+    // ----- Render body -----
+
     tex := TEXTURES[bodyTexName]
+
+    if t.IsPreview() {
+        tex.Texture.SetAlphaMod(128)
+        tex.Texture.SetColorMod(50, 50, 50)
+    } else {
+        tex.Texture.SetAlphaMod(255)
+        tex.Texture.SetColorMod(255, 255, 255)
+    }
+
     rect := sdl.Rect{
         X: int32(float64(t.GetFieldCol())*FIELD_SIZE_PX), Y: int32(float64(t.GetFieldRow())*FIELD_SIZE_PX),
         W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}
     renderer.Copy(tex.Texture, nil, &rect)
 
-    // Render head
+
+    // ----- Render head -----
+
     tex = TEXTURES[headTexName]
+
+    if t.IsPreview() {
+        tex.Texture.SetAlphaMod(128)
+        tex.Texture.SetColorMod(50, 50, 50)
+    } else {
+        tex.Texture.SetAlphaMod(255)
+        tex.Texture.SetColorMod(255, 255, 255)
+    }
+
     rect = sdl.Rect{
         X: int32(float64(t.GetFieldCol())*FIELD_SIZE_PX), Y: int32(float64(t.GetFieldRow())*FIELD_SIZE_PX),
         W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}
@@ -95,15 +117,12 @@ type ITower interface {
     GetFieldCol() int32
     GetFieldRow() int32
     GetHP() int
-    /*
-     * If the tower is phisically on the map, this is true.
-     * If the tower is used on the bottom bar or otherwise an indicator, this is false.
-    */
-    IsReal() bool
+    IsPreview() bool
     GetRotationDeg() float64
 
-    SetReal(val bool)
     SetRotationDeg(val float64)
+    SetFieldCol(val int32)
+    SetFieldRow(val int32)
 
     CheckCursorHover(renderer *sdl.Renderer, x int32, y int32)
 
@@ -118,7 +137,7 @@ type Cannon struct {
     FieldCol int32;
     FieldRow int32;
 
-    IsReal_ bool;
+    IsPreview_ bool;
 
     RotationDeg float64
 
@@ -129,11 +148,13 @@ var _ ITower = (*Cannon)(nil)
 func (c *Cannon) GetFieldCol() int32 { return c.FieldCol }
 func (c *Cannon) GetFieldRow() int32 { return c.FieldRow }
 func (c *Cannon) GetHP() int { return c.Hp; }
-func (c *Cannon) IsReal() bool { return c.IsReal_ }
+func (c *Cannon) IsPreview() bool { return c.IsPreview_ }
 func (c *Cannon) GetRotationDeg() float64 { return c.RotationDeg }
 
-func (c *Cannon) SetReal(val bool) { c.IsReal_ = val }
 func (c *Cannon) SetRotationDeg(val float64) { c.RotationDeg = val }
+
+func (c *Cannon) SetFieldCol(val int32) { c.FieldCol = val }
+func (c *Cannon) SetFieldRow(val int32) { c.FieldRow = val }
 
 func (c *Cannon) CheckCursorHover(renderer *sdl.Renderer, x int32, y int32) {
     towerCheckCursorHover(c, renderer, x, y)
@@ -153,7 +174,7 @@ type RocketTower struct {
     FieldCol int32;
     FieldRow int32;
 
-    IsReal_ bool;
+    IsPreview_ bool;
 
     RotationDeg float64
 
@@ -164,11 +185,12 @@ var _ ITower = (*RocketTower)(nil)
 func (t *RocketTower) GetFieldCol() int32 { return t.FieldCol }
 func (t *RocketTower) GetFieldRow() int32 { return t.FieldRow }
 func (t *RocketTower) GetHP() int { return t.Hp; }
-func (t *RocketTower) IsReal() bool { return t.IsReal_ }
+func (t *RocketTower) IsPreview() bool { return t.IsPreview_ }
 func (t *RocketTower) GetRotationDeg() float64 { return t.RotationDeg }
 
-func (t *RocketTower) SetReal(val bool) { t.IsReal_ = val }
 func (t *RocketTower) SetRotationDeg(val float64) { t.RotationDeg = val }
+func (t *RocketTower) SetFieldCol(val int32) { t.FieldCol = val }
+func (t *RocketTower) SetFieldRow(val int32) { t.FieldRow = val }
 
 func (t *RocketTower) CheckCursorHover(renderer *sdl.Renderer, x int32, y int32) {
     towerCheckCursorHover(t, renderer, x, y)

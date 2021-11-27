@@ -149,7 +149,12 @@ func main() {
     hp := 100
     var towers []tower.ITower
     var enemies []enemy.IEnemy
-    placedTowerType := tower.TOWER_TYPE_ROCKETTOWER
+
+    placedTowerType := tower.TOWER_TYPE_NONE
+    var previewTower tower.ITower
+
+    var mouseX, mouseY int32
+    var mouseState uint32
 
     isTowerAt := func(col int32, row int32) bool {
         for _, tower := range towers {
@@ -169,6 +174,35 @@ func main() {
         return false
     }
 
+    posToField := func(x int32, y int32) (int32, int32) {
+        col := int32(float64(mouseX)/FIELD_SIZE_PX)
+        row := int32(float64(mouseY)/FIELD_SIZE_PX)
+        return col, row
+    }
+
+    switchPlacedTowerType := func(typ tower.TowerType) {
+        if placedTowerType == typ {
+            return
+        }
+
+        placedTowerType = typ
+
+        switch typ {
+        case tower.TOWER_TYPE_NONE:
+            previewTower = nil
+
+        case tower.TOWER_TYPE_CANNON:
+            tow := tower.Cannon{FieldCol: 0, FieldRow: 0, IsPreview_: true}
+            previewTower = &tow
+
+        case tower.TOWER_TYPE_ROCKETTOWER:
+            tow := tower.RocketTower{FieldCol: 0, FieldRow: 0, IsPreview_: true}
+            previewTower = &tow
+
+        default: panic(typ)
+        }
+    }
+
     // TODO: Test -- Remove later
     tank1 := enemy.Tank{FieldCol: 3, FieldRow: 1, Hp: 10}
     enemies = append(enemies, &tank1)
@@ -185,7 +219,7 @@ func main() {
     for {
         startTime = sdl.GetTicks()
         winW, winH := window.GetSize()
-        mouseX, mouseY, mouseState := sdl.GetMouseState()
+        mouseX, mouseY, mouseState = sdl.GetMouseState()
         UNUSED(mouseState)
 
         for {
@@ -200,8 +234,7 @@ func main() {
                 fmt.Println("Window close requested")
 
             case sdl.MOUSEBUTTONDOWN:
-                col := int32(float64(mouseX)/FIELD_SIZE_PX)
-                row := int32(float64(mouseY)/FIELD_SIZE_PX)
+                col, row := posToField(mouseX, mouseY)
                 if placedTowerType != tower.TOWER_TYPE_NONE && coins >= placedTowerType.GetPrice() &&
                         !isTowerAt(col, row) && !isRoadAt(col, row) {
 
@@ -214,14 +247,14 @@ func main() {
                         tower_ = &tower.Cannon{
                             FieldCol: col,
                             FieldRow: row,
-                            IsReal_: true,
+                            IsPreview_: false,
                             Hp: placedTowerType.GetInitialHP()}
 
                     case tower.TOWER_TYPE_ROCKETTOWER:
                         tower_ = &tower.RocketTower{
                             FieldCol: col,
                             FieldRow: row,
-                            IsReal_: true,
+                            IsPreview_: false,
                             Hp: placedTowerType.GetInitialHP()}
 
                     default: panic(placedTowerType)
@@ -232,6 +265,21 @@ func main() {
                     fmt.Printf("Placed a tower at {%d, %d}\n", col, row)
                 }
                 //fmt.Printf("{%d, %d}\n", col, row);
+
+            case sdl.MOUSEWHEEL:
+                newType := placedTowerType
+                if event.(*sdl.MouseWheelEvent).Y > 0 {
+                    newType++
+                } else {
+                    newType--
+                }
+
+                if newType >= tower.TOWER_TYPE__COUNT {
+                    newType = tower.TOWER_TYPE__COUNT-1
+                } else if newType < 0 {
+                    newType = 0
+                }
+                switchPlacedTowerType(newType)
             }
         }
         if done {
@@ -262,6 +310,13 @@ func main() {
 
         for _, t := range towers {
             t.CheckCursorHover(renderer, mouseX, mouseY)
+        }
+
+        if previewTower != nil {
+            col, row := posToField(mouseX, mouseY)
+            previewTower.SetFieldCol(col)
+            previewTower.SetFieldRow(row)
+            previewTower.Render(renderer)
         }
 
         renderer.Present()
