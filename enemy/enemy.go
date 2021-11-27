@@ -6,7 +6,17 @@ import (
     . "TowerDefense/common"
 )
 
-//-------------------------------- Enemy ----------------------------------------
+//-------------------------------------------------------------------------------
+
+func renderEnemy(renderer *sdl.Renderer, e IEnemy) {
+    tex := TEXTURES[TEXTURE_FILENAME_TANK]
+    rect := sdl.Rect{
+        X: int32(float64(e.GetFieldCol())*FIELD_SIZE_PX), Y: int32(float64(e.GetFieldRow())*FIELD_SIZE_PX),
+        W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}
+    renderer.Copy(tex.Texture, nil, &rect)
+}
+
+//-------------------------------------------------------------------------------
 
 type IEnemy interface {
     GetFieldCol() int32
@@ -17,6 +27,8 @@ type IEnemy interface {
 
     Render(renderer *sdl.Renderer)
 }
+
+//-------------------------------------------------------------------------------
 
 type Tank struct {
     FieldCol int32;
@@ -35,11 +47,7 @@ func (t *Tank) Update() {
 }
 
 func (t *Tank) Render(renderer *sdl.Renderer) {
-    tex := TEXTURES[TEXTURE_FILENAME_TANK]
-    rect := sdl.Rect{
-        X: int32(float64(t.GetFieldCol())*FIELD_SIZE_PX), Y: int32(float64(t.GetFieldRow())*FIELD_SIZE_PX),
-        W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}
-    renderer.Copy(tex.Texture, nil, &rect)
+    renderEnemy(renderer, t)
 }
 
 
@@ -60,8 +68,8 @@ func GetClosestEnemyPos(enemies []IEnemy, col float64, row float64) (int32, int3
     closestI := -1
     for i, enemy := range enemies {
         dist := calcDistance(
-            Vec2DF{col, row},
-            Vec2DF{float64(enemy.GetFieldCol()), float64(enemy.GetFieldRow())})
+            Vec2DF{X: col, Y: row},
+            Vec2DF{X: float64(enemy.GetFieldCol()), Y: float64(enemy.GetFieldRow())})
         // If this is the first checked or closer than the closest one
         if closestDist < 0 || dist < closestDist {
             closestDist = dist

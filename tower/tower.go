@@ -57,6 +57,38 @@ func renderTowerInfo(renderer *sdl.Renderer, t ITower, x int32, y int32) {
     }
 }
 
+func renderTower(renderer *sdl.Renderer, t ITower, bodyTexName string, headTexName string) {
+    // Render body
+    tex := TEXTURES[bodyTexName]
+    rect := sdl.Rect{
+        X: int32(float64(t.GetFieldCol())*FIELD_SIZE_PX), Y: int32(float64(t.GetFieldRow())*FIELD_SIZE_PX),
+        W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}
+    renderer.Copy(tex.Texture, nil, &rect)
+
+    // Render head
+    tex = TEXTURES[headTexName]
+    rect = sdl.Rect{
+        X: int32(float64(t.GetFieldCol())*FIELD_SIZE_PX), Y: int32(float64(t.GetFieldRow())*FIELD_SIZE_PX),
+        W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}
+    renderer.CopyEx(tex.Texture, nil, &rect, t.GetRotationDeg(), nil, 0)
+}
+
+func towerUpdateRotation(t ITower, enemies []enemy.IEnemy) {
+    cloCol, cloRow := enemy.GetClosestEnemyPos(enemies, float64(t.GetFieldCol()), float64(t.GetFieldRow()))
+    rotRad := math.Atan2(float64(cloRow - t.GetFieldRow()), float64(cloCol - t.GetFieldCol()))
+    rotDeg := rotRad * (180/math.Pi) + 90
+    t.SetRotationDeg(t.GetRotationDeg() + (rotDeg - t.GetRotationDeg()) / 10)
+}
+
+func towerCheckCursorHover(t ITower, renderer *sdl.Renderer, x int32, y int32) {
+    rect := towerAsRect(t)
+    if IsInsideRect(rect, x, y) {
+        renderer.SetDrawColor(255, 255, 255, 255)
+        renderer.DrawRect(&rect)
+        renderTowerInfo(renderer, t, x, y)
+    }
+}
+
 //------------------------------------------------------------------------------
 
 type ITower interface {
@@ -104,35 +136,15 @@ func (c *Cannon) SetReal(val bool) { c.IsReal_ = val }
 func (c *Cannon) SetRotationDeg(val float64) { c.RotationDeg = val }
 
 func (c *Cannon) CheckCursorHover(renderer *sdl.Renderer, x int32, y int32) {
-    rect := towerAsRect(c)
-    if IsInsideRect(rect, x, y) {
-        renderer.SetDrawColor(255, 255, 255, 255)
-        renderer.DrawRect(&rect)
-        renderTowerInfo(renderer, c, x, y)
-    }
+    towerCheckCursorHover(c, renderer, x, y)
 }
 
 func (c *Cannon) Update(enemies []enemy.IEnemy) {
-    cloCol, cloRow := enemy.GetClosestEnemyPos(enemies, float64(c.FieldCol), float64(c.FieldRow))
-    rotRad := math.Atan2(float64(cloRow - c.FieldRow), float64(cloCol - c.FieldCol))
-    rotDeg := rotRad * (180/math.Pi) + 90
-    c.RotationDeg += (rotDeg - c.RotationDeg) / 10
+    towerUpdateRotation(c, enemies)
 }
 
 func (c *Cannon) Render(renderer *sdl.Renderer) {
-    // Render body
-    tex := TEXTURES[TEXTURE_FILENAME_CANNON_BASE]
-    rect := sdl.Rect{
-        X: int32(float64(c.GetFieldCol())*FIELD_SIZE_PX), Y: int32(float64(c.GetFieldRow())*FIELD_SIZE_PX),
-        W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}
-    renderer.Copy(tex.Texture, nil, &rect)
-
-    // Render head
-    tex = TEXTURES[TEXTURE_FILENAME_CANNON_HEAD]
-    rect = sdl.Rect{
-        X: int32(float64(c.GetFieldCol())*FIELD_SIZE_PX), Y: int32(float64(c.GetFieldRow())*FIELD_SIZE_PX),
-        W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}
-    renderer.CopyEx(tex.Texture, nil, &rect, c.GetRotationDeg(), nil, 0)
+    renderTower(renderer, c, TEXTURE_FILENAME_CANNON_BASE, TEXTURE_FILENAME_CANNON_HEAD)
 }
 
 //------------------------------------------------------------------------------
@@ -159,34 +171,14 @@ func (t *RocketTower) SetReal(val bool) { t.IsReal_ = val }
 func (t *RocketTower) SetRotationDeg(val float64) { t.RotationDeg = val }
 
 func (t *RocketTower) CheckCursorHover(renderer *sdl.Renderer, x int32, y int32) {
-    rect := towerAsRect(t)
-    if IsInsideRect(rect, x, y) {
-        renderer.SetDrawColor(255, 255, 255, 255)
-        renderer.DrawRect(&rect)
-        renderTowerInfo(renderer, t, x, y)
-    }
+    towerCheckCursorHover(t, renderer, x, y)
 }
 
 func (t *RocketTower) Update(enemies []enemy.IEnemy) {
-    cloCol, cloRow := enemy.GetClosestEnemyPos(enemies, float64(t.FieldCol), float64(t.FieldRow))
-    rotRad := math.Atan2(float64(cloRow - t.FieldRow), float64(cloCol - t.FieldCol))
-    rotDeg := rotRad * (180/math.Pi) + 90
-    t.RotationDeg += (rotDeg - t.RotationDeg) / 10
+    towerUpdateRotation(t, enemies)
 }
 
 func (t *RocketTower) Render(renderer *sdl.Renderer) {
-    // Render body
-    tex := TEXTURES[TEXTURE_FILENAME_ROCKETTOWER_BASE]
-    rect := sdl.Rect{
-        X: int32(float64(t.GetFieldCol())*FIELD_SIZE_PX), Y: int32(float64(t.GetFieldRow())*FIELD_SIZE_PX),
-        W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}
-    renderer.Copy(tex.Texture, nil, &rect)
-
-    // Render head
-    tex = TEXTURES[TEXTURE_FILENAME_ROCKETTOWER_HEAD]
-    rect = sdl.Rect{
-        X: int32(float64(t.GetFieldCol())*FIELD_SIZE_PX), Y: int32(float64(t.GetFieldRow())*FIELD_SIZE_PX),
-        W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}
-    renderer.CopyEx(tex.Texture, nil, &rect, t.GetRotationDeg(), nil, 0)
+    renderTower(renderer, t, TEXTURE_FILENAME_ROCKETTOWER_BASE, TEXTURE_FILENAME_ROCKETTOWER_HEAD)
 }
 
