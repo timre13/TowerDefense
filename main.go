@@ -5,7 +5,9 @@ import (
     "github.com/veandco/go-sdl2/img"
     "fmt"
     "math"
+    "math/rand"
     "os"
+    "time"
     . "TowerDefense/common"
     "TowerDefense/tower"
     "TowerDefense/enemy"
@@ -143,6 +145,8 @@ func main() {
     OpenFont(renderer, FONT_FILE_PATH)
     fmt.Println("Font loaded")
 
+    rand.Seed(time.Hour.Nanoseconds())
+
     //--------------------------- Variables ------------------------------------
 
     coins := 100
@@ -203,11 +207,6 @@ func main() {
         }
     }
 
-    // TODO: Test -- Remove later
-    tank1 := enemy.Tank{FieldCol: 3, FieldRow: 1, Hp: 10}
-    enemies = append(enemies, &tank1)
-    tank2 := enemy.Tank{FieldCol: 14, FieldRow: 5, Hp: 10}
-    enemies = append(enemies, &tank2)
 
     //--------------------------- Main loop ------------------------------------
 
@@ -294,6 +293,11 @@ func main() {
         FIELD_SIZE_PX = math.Min(float64(winW)/MAP_WIDTH_FIELD,
                                 float64(winH-BOTTOM_BAR_HEIGHT_PX)/MAP_HEIGHT_FIELD)
 
+        if startTime % 20 == 0 && rand.Int() % 10 == 0 {
+            tank := enemy.Tank{Hp: 10, RotationDeg: 180}
+            enemies = append(enemies, &tank)
+        }
+
         // Render environment
         drawCheckerBg(renderer)
         drawRoad(renderer)
@@ -308,6 +312,9 @@ func main() {
         // Render entities
         for _, enemy := range enemies { enemy.Render(renderer) }
         for _, tower := range towers { tower.Render(renderer) }
+
+        // TODO: Remove enemies that reach the end of the road
+        //       and decrease player HP
 
         for _, t := range towers {
             t.CheckCursorHover(renderer, mouseX, mouseY)

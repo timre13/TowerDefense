@@ -11,9 +11,9 @@ import (
 func renderEnemy(renderer *sdl.Renderer, e IEnemy) {
     tex := TEXTURES[TEXTURE_FILENAME_TANK]
     rect := sdl.Rect{
-        X: int32(float64(e.GetFieldCol())*FIELD_SIZE_PX), Y: int32(float64(e.GetFieldRow())*FIELD_SIZE_PX),
+        X: e.GetXPos(), Y: e.GetYPos(),
         W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}
-    renderer.Copy(tex.Texture, nil, &rect)
+    renderer.CopyEx(tex.Texture, nil, &rect, e.GetRotationDeg(), nil, 0)
 }
 
 //-------------------------------------------------------------------------------
@@ -21,7 +21,12 @@ func renderEnemy(renderer *sdl.Renderer, e IEnemy) {
 type IEnemy interface {
     GetFieldCol() int32
     GetFieldRow() int32
+    GetXPos() int32
+    GetYPos() int32
     GetHP() int
+    GetRotationDeg() float64
+
+    setRotationDeg(val float64)
 
     Update()
 
@@ -31,25 +36,76 @@ type IEnemy interface {
 //-------------------------------------------------------------------------------
 
 type Tank struct {
-    FieldCol int32;
-    FieldRow int32;
-
     Hp int
+    RotationDeg float64
+
+    roadI int
+    roadOffset int
+
 }
 var _ IEnemy = (*Tank)(nil)
 
-func (t *Tank) GetFieldCol() int32 { return t.FieldCol }
-func (t *Tank) GetFieldRow() int32 { return t.FieldRow }
+func (t *Tank) GetFieldCol() int32 { return ROAD_COORDS[t.roadI].X }
+func (t *Tank) GetFieldRow() int32 { return ROAD_COORDS[t.roadI].Y }
 func (t *Tank) GetHP() int { return t.Hp }
+func (t *Tank) GetRotationDeg() float64 { return t.RotationDeg }
+func (t *Tank) GetXPos() int32 {
+    if t.roadI == len(ROAD_COORDS)-1 {
+        return ROAD_COORDS[t.roadI].X
+    } else {
+        return int32(float64(
+            Lerp(float64(ROAD_COORDS[t.roadI].X)*FIELD_SIZE_PX,
+                 float64(ROAD_COORDS[t.roadI+1].X)*FIELD_SIZE_PX, float64(t.roadOffset)/100.0)))
+    }
+}
+
+func (t *Tank) GetYPos() int32 {
+    if t.roadI == len(ROAD_COORDS)-1 {
+        return ROAD_COORDS[t.roadI].Y
+    } else {
+        return int32(float64(
+            Lerp(float64(ROAD_COORDS[t.roadI].Y)*FIELD_SIZE_PX,
+                 float64(ROAD_COORDS[t.roadI+1].Y)*FIELD_SIZE_PX, float64(t.roadOffset)/100.0)))
+    }
+}
+
+func (t *Tank) setRotationDeg(val float64) { t.RotationDeg = val }
 
 func (t *Tank) Update() {
-    // TODO
+    t.roadOffset += 3
+    if t.roadOffset >= 100 {
+        t.roadI++
+        if t.roadI >= len(ROAD_COORDS) {
+            t.roadI = len(ROAD_COORDS)-1
+            return
+        }
+
+        if t.roadI != len(ROAD_COORDS)-1 {
+            col := ROAD_COORDS[t.roadI].X
+            row := ROAD_COORDS[t.roadI].Y
+   
+            dir := t.GetRotationDeg()
+            xDiff, yDiff := ROAD_COORDS[t.roadI+1].X-col, ROAD_COORDS[t.roadI+1].Y-row
+
+            if xDiff > 0 {
+                dir = 90
+            } else if xDiff < 0 {
+                dir = 270
+            } else if yDiff > 0 {
+                dir = 180
+            } else if yDiff < 0 {
+                dir = 0
+            }
+            t.setRotationDeg(dir)
+        }
+
+        t.roadOffset = 0
+    }
 }
 
 func (t *Tank) Render(renderer *sdl.Renderer) {
     renderEnemy(renderer, t)
 }
-
 
 //-------------------------------------------------------------------------------
 

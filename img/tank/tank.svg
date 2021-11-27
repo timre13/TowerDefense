@@ -21,6 +21,26 @@
    inkscape:export-ydpi="192">
   <defs
      id="defs2">
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern3064"
+       id="pattern1811"
+       patternTransform="matrix(0.87686297,0,0,0.87686297,-322.92446,-48.760431)" />
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern3064"
+       id="pattern1809"
+       patternTransform="matrix(0.87686297,0,0,0.87686297,-322.92446,-48.760431)" />
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern3064"
+       id="pattern1807"
+       patternTransform="matrix(-0.87686297,0,0,-0.87686297,322.92447,48.760436)" />
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern3045"
+       id="pattern1805"
+       patternTransform="matrix(0.87686297,0,0,0.87686297,34.069592,8.8192505)" />
     <linearGradient
        id="linearGradient2969"
        osb:paint="solid">
@@ -69,9 +89,9 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1.1813375"
      inkscape:cx="210.46769"
-     inkscape:cy="247.26666"
+     inkscape:cy="271.96206"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer3"
+     inkscape:current-layer="layer2"
      inkscape:document-rotation="0"
      showgrid="false"
      units="px"
@@ -80,7 +100,7 @@
      showborder="true"
      inkscape:window-width="1916"
      inkscape:window-height="1058"
-     inkscape:window-x="0"
+     inkscape:window-x="1920"
      inkscape:window-y="20"
      inkscape:window-maximized="1" />
   <metadata
@@ -101,16 +121,17 @@
      inkscape:label="Body 1">
     <g
        id="g31"
-       style="fill:url(#pattern3064);fill-opacity:1.0">
+       style="fill:url(#pattern3064);fill-opacity:1"
+       transform="matrix(-0.87686299,0,0,-0.87686299,127.12618,138.15098)">
       <rect
-         style="fill:url(#pattern3064);stroke-width:1.58786;fill-opacity:1.0"
+         style="fill:url(#pattern3064);fill-opacity:1;stroke-width:1.58786"
          id="rect832"
          width="22.950794"
          height="12.070195"
          x="36.092087"
          y="122.08426" />
       <rect
-         style="fill:url(#pattern3064);stroke-width:1.58786;fill-opacity:1.0"
+         style="fill:url(#pattern3064);fill-opacity:1;stroke-width:1.58786"
          id="rect854"
          width="22.950794"
          height="12.070195"
@@ -123,16 +144,17 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="fill:url(#pattern3045);stroke-width:1.58786;fill-opacity:1.0"
+       style="fill:url(#pattern1805);fill-opacity:1;stroke-width:1.39234"
        id="rect830"
-       width="88.190521"
-       height="125.18925"
-       x="23.638071"
-       y="4.2694807"
+       width="77.331009"
+       height="109.77382"
+       x="-106.39883"
+       y="-134.4073"
        rx="0"
-       ry="3.7399464"
+       ry="3.2794206"
        inkscape:export-xdpi="192"
-       inkscape:export-ydpi="192" />
+       inkscape:export-ydpi="192"
+       transform="scale(-1)" />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -140,26 +162,28 @@
      inkscape:label="Head">
     <path
        id="rect16"
-       style="fill:url(#pattern3064);stroke-width:1.13363;fill-opacity:1.0"
-       d="m 67.733331,97.93503 c 12.761624,0 23.1069,-10.016843 23.106682,-22.373111 -0.01239,-12.32567 0,-25.013099 0,-37.467121 0,-2.507945 -2.702654,-4.526972 -6.05976,-4.526972 H 50.686411 c -3.357106,0 -6.059761,2.019027 -6.059761,4.526972 0.216175,13.094001 0.03005,25.992885 0,37.467121 -2.17e-4,12.356268 10.345059,22.373111 23.106681,22.373111 z"
+       style="fill:url(#pattern1807);fill-opacity:1;stroke-width:0.994039"
+       d="m 67.733333,52.275348 c -11.190197,0 -20.261586,8.783398 -20.261395,19.618152 0.01089,10.807924 0,21.933069 0,32.8535 0,2.19914 2.369857,3.96955 5.313579,3.96955 h 29.895629 c 2.943722,0 5.313579,-1.77041 5.313579,-3.96955 -0.189555,-11.481606 -0.02634,-22.792167 0,-32.8535 1.9e-4,-10.834754 -9.071199,-19.618152 -20.261392,-19.618152 z"
        sodipodi:nodetypes="sccssccs" />
     <rect
-       style="fill:url(#pattern3064);stroke-width:1;fill-opacity:1.0"
+       style="fill:url(#pattern1809);fill-opacity:1;stroke-width:0.876863"
        id="rect25"
-       width="8.6799135"
-       height="62.16116"
-       x="63.393375"
-       y="93.159714"
-       ry="1.9658098"
-       rx="2.5770161" />
+       width="7.611095"
+       height="54.506821"
+       x="-71.538872"
+       y="-56.462635"
+       ry="1.7237458"
+       rx="2.2596903"
+       transform="scale(-1)" />
     <rect
-       style="fill:url(#pattern3064);stroke-width:0.907478;fill-opacity:1.0"
+       style="fill:url(#pattern1811);fill-opacity:1;stroke-width:0.795734"
        id="rect27"
-       width="10.307046"
-       height="16.586683"
-       x="62.579811"
-       y="140.45567"
-       rx="2.1793535"
-       ry="1.9142653" />
+       width="9.0378675"
+       height="14.544249"
+       x="-72.252266"
+       y="-14.990564"
+       rx="1.9109944"
+       ry="1.6785483"
+       transform="scale(-1)" />
   </g>
 </svg>
