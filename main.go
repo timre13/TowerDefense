@@ -236,6 +236,7 @@ func main() {
             case sdl.MOUSEBUTTONDOWN:
                 col, row := posToField(mouseX, mouseY)
                 if placedTowerType != tower.TOWER_TYPE_NONE && coins >= placedTowerType.GetPrice() &&
+                        IsInsideWorld(mouseX, mouseY) &&
                         !isTowerAt(col, row) && !isRoadAt(col, row) {
 
                     coins -= placedTowerType.GetPrice()
@@ -312,7 +313,7 @@ func main() {
             t.CheckCursorHover(renderer, mouseX, mouseY)
         }
 
-        if previewTower != nil {
+        if previewTower != nil && IsInsideWorld(mouseX, mouseY) {
             col, row := posToField(mouseX, mouseY)
             previewTower.SetFieldCol(col)
             previewTower.SetFieldRow(row)

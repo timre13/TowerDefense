@@ -125,6 +125,11 @@ func IsInsideRect(r sdl.Rect, x int32, y int32) bool {
     return x >= r.X && x < r.X+r.W && y >= r.Y && y < r.Y+r.H
 }
 
+func IsInsideWorld(x int32, y int32) bool {
+    return x >= 0 && float64(x) < MAP_WIDTH_FIELD*FIELD_SIZE_PX &&
+           y >= 0 && float64(y) < MAP_HEIGHT_FIELD*FIELD_SIZE_PX
+}
+
 //-------------------------------------------------------------------------------
 
 func ShowErrAndPanic(err string) {
