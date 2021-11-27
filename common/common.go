@@ -93,7 +93,7 @@ var TEXTURES = map[string]*Texture{
 
 //-------------------------------------------------------------------------------
 
-var CHAR_TEXTURES = [94]*Texture{}
+var charTextures = [95]*Texture{}
 
 
 func OpenFont(renderer *sdl.Renderer, path string) {
@@ -103,20 +103,29 @@ func OpenFont(renderer *sdl.Renderer, path string) {
     font, err := ttf.OpenFont(path, DEF_FONT_SIZE)
     CheckErr(err)
 
-    // FIXME: Support space character
-    for i := range CHAR_TEXTURES {
-        surface, err := font.RenderGlyphBlended(rune('!'+i), sdl.Color{R: 255, G: 255, B: 255, A: 255})
+    for i := range charTextures {
+        surface, err := font.RenderGlyphBlended(rune(' '+i), sdl.Color{R: 255, G: 255, B: 255, A: 255})
         CheckErr(err)
         tex, err := renderer.CreateTextureFromSurface(surface)
         CheckErr(err)
         texture := Texture{Texture: tex, Width: surface.W, Height: surface.H}
         surface.Free()
-        CHAR_TEXTURES[i] = &texture
+        charTextures[i] = &texture
     }
     font.Close()
     font = nil
 
     ttf.Quit()
+}
+
+func GetCharTex(c rune) *Texture {
+    return charTextures[c-' ']
+}
+
+func FreeCharTextures() {
+    for _, texture := range charTextures {
+        texture.Texture.Destroy()
+    }
 }
 
 //-------------------------------------------------------------------------------

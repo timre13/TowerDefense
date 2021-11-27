@@ -60,7 +60,7 @@ func drawBottomBar(renderer *sdl.Renderer, winW int32, winH int32, coins int, hp
     // Render coin value
     offs += 64+5
     for _, char := range fmt.Sprint(coins) {
-        tex := CHAR_TEXTURES[char-'!']
+        tex := GetCharTex(char)
         rect = sdl.Rect{
             X: offs, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-DEF_FONT_SIZE/2,
             W: tex.Width, H: tex.Height}
@@ -77,7 +77,7 @@ func drawBottomBar(renderer *sdl.Renderer, winW int32, winH int32, coins int, hp
     // Render HP value
     offs += 64+5
     for _, char := range fmt.Sprint(hp) {
-        tex := CHAR_TEXTURES[char-'!']
+        tex := GetCharTex(char)
         rect = sdl.Rect{
             X: offs, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-DEF_FONT_SIZE/2,
             W: tex.Width, H: tex.Height}
@@ -332,9 +332,7 @@ func main() {
         texture.Texture.Destroy()
     }
 
-    for _, texture := range CHAR_TEXTURES {
-        texture.Texture.Destroy()
-    }
+    FreeCharTextures()
 
     renderer.Destroy()
     window.Destroy()

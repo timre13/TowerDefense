@@ -48,8 +48,8 @@ func towerAsRect(t ITower) sdl.Rect {
 
 func renderTowerInfo(renderer *sdl.Renderer, t ITower, x int32, y int32) {
     charX := x+20
-    for _, char := range fmt.Sprint(t.GetHP()) {
-        tex := CHAR_TEXTURES[char-'!']
+    for _, char := range fmt.Sprintf("HP: %d", t.GetHP()) {
+        tex := GetCharTex(char)
         rect := sdl.Rect{
             X: charX, Y: y,
             W: tex.Width, H: tex.Height}
