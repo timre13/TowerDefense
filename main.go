@@ -71,7 +71,7 @@ func drawBottomBar(renderer *sdl.Renderer, winW int32, winH int32, coins int, hp
     }
 
     // Draw coin texture
-    offs += 50
+    offs = 200
     tex = TEXTURES[TEXTURE_FILENAME_COIN]
     rect = sdl.Rect{X: offs, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-32, W: 64, H: 64}
     renderer.Copy(tex.Texture, nil, &rect)
