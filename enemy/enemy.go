@@ -25,6 +25,7 @@ type IEnemy interface {
     GetYPos() int32
     GetHP() int
     GetRotationDeg() float64
+    HasArrivedToDestination() bool
 
     setRotationDeg(val float64)
 
@@ -67,6 +68,10 @@ func (t *Tank) GetYPos() int32 {
             Lerp(float64(ROAD_COORDS[t.roadI].Y)*FIELD_SIZE_PX,
                  float64(ROAD_COORDS[t.roadI+1].Y)*FIELD_SIZE_PX, float64(t.roadOffset)/100.0)))
     }
+}
+
+func (t *Tank) HasArrivedToDestination() bool {
+    return t.roadI >= len(ROAD_COORDS)-1
 }
 
 func (t *Tank) setRotationDeg(val float64) { t.RotationDeg = val }

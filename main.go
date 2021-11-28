@@ -54,14 +54,14 @@ func drawBottomBar(renderer *sdl.Renderer, winW int32, winH int32, coins int, hp
 
     var offs int32 = 16
 
-    // Draw coin texture
-    tex := TEXTURES[TEXTURE_FILENAME_COIN]
+    // Draw HP texture
+    tex := TEXTURES[TEXTURE_FILENAME_HP]
     rect = sdl.Rect{X: offs, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-32, W: 64, H: 64}
     renderer.Copy(tex.Texture, nil, &rect)
 
-    // Render coin value
+    // Render HP value
     offs += 64+5
-    for _, char := range fmt.Sprint(coins) {
+    for _, char := range fmt.Sprint(hp) {
         tex := GetCharTex(char)
         rect = sdl.Rect{
             X: offs, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-DEF_FONT_SIZE/2,
@@ -70,15 +70,15 @@ func drawBottomBar(renderer *sdl.Renderer, winW int32, winH int32, coins int, hp
         offs += tex.Width
     }
 
-    // Draw HP texture
+    // Draw coin texture
     offs += 50
-    tex = TEXTURES[TEXTURE_FILENAME_HP]
+    tex = TEXTURES[TEXTURE_FILENAME_COIN]
     rect = sdl.Rect{X: offs, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-32, W: 64, H: 64}
     renderer.Copy(tex.Texture, nil, &rect)
 
-    // Render HP value
+    // Render coin value
     offs += 64+5
-    for _, char := range fmt.Sprint(hp) {
+    for _, char := range fmt.Sprint(coins) {
         tex := GetCharTex(char)
         rect = sdl.Rect{
             X: offs, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-DEF_FONT_SIZE/2,
@@ -309,17 +309,26 @@ func main() {
         for _, enemy := range enemies { enemy.Update() }
         for _, tower := range towers { tower.Update(enemies) }
 
+        // Handle when enemies reach the destination
+        for i := 0; i < len(enemies); i++ {
+            if enemies[i].HasArrivedToDestination() {
+                enemies = append(enemies[:i], enemies[i+1:]...)
+                i--
+
+                hp -= 5+rand.Intn(20)
+            }
+        }
+
         // Render entities
         for _, enemy := range enemies { enemy.Render(renderer) }
         for _, tower := range towers { tower.Render(renderer) }
 
-        // TODO: Remove enemies that reach the end of the road
-        //       and decrease player HP
-
+        // Render tower info on hover
         for _, t := range towers {
             t.CheckCursorHover(renderer, mouseX, mouseY)
         }
 
+        // Render preview tower
         if previewTower != nil && IsInsideWorld(mouseX, mouseY) {
             col, row := posToField(mouseX, mouseY)
             previewTower.SetFieldCol(col)
