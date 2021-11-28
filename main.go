@@ -61,7 +61,7 @@ func drawBottomBar(renderer *sdl.Renderer, winW int32, winH int32, coins int, hp
 
     // Render HP value
     offs += 64+5
-    for _, char := range fmt.Sprint(hp) {
+    for _, char := range fmt.Sprint(int(math.Max(float64(hp), 0))) {
         tex := GetCharTex(char)
         rect = sdl.Rect{
             X: offs, Y: winH-BOTTOM_BAR_HEIGHT_PX+BOTTOM_BAR_HEIGHT_PX/2-DEF_FONT_SIZE/2,
@@ -301,9 +301,6 @@ func main() {
         // Render environment
         drawCheckerBg(renderer)
         drawRoad(renderer)
-        ASSERT_TRUE(coins >= 0)
-        ASSERT_TRUE(hp >= 0) // TODO: Handle death
-        drawBottomBar(renderer, winW, winH, coins, hp)
 
         // Update entities
         for _, enemy := range enemies { enemy.Update() }
@@ -323,6 +320,9 @@ func main() {
         for _, enemy := range enemies { enemy.Render(renderer) }
         for _, tower := range towers { tower.Render(renderer) }
 
+        ASSERT_TRUE(coins >= 0)
+        drawBottomBar(renderer, winW, winH, coins, hp)
+
         // Render tower info on hover
         for _, t := range towers {
             t.CheckCursorHover(renderer, mouseX, mouseY)
@@ -337,6 +337,12 @@ func main() {
         }
 
         renderer.Present()
+
+        if hp <= 0 {
+            sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "Game Over", "GAME OVER", nil)
+            done = true
+        }
+
         sdl.Delay(16)
 
         frameTime = sdl.GetTicks() - startTime
