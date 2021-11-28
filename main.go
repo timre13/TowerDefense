@@ -145,7 +145,7 @@ func main() {
     OpenFont(renderer, FONT_FILE_PATH)
     fmt.Println("Font loaded")
 
-    rand.Seed(time.Hour.Nanoseconds())
+    rand.Seed(time.Now().UnixNano())
 
     //--------------------------- Variables ------------------------------------
 
