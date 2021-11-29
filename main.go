@@ -11,6 +11,7 @@ import (
     . "TowerDefense/common"
     "TowerDefense/tower"
     "TowerDefense/enemy"
+    "TowerDefense/missile"
 )
 
 
@@ -153,6 +154,7 @@ func main() {
     hp := 100
     var towers []tower.ITower
     var enemies []enemy.IEnemy
+    var missiles []missile.IMissile
 
     placedTowerType := tower.TOWER_TYPE_NONE
     var previewTower tower.ITower
@@ -304,7 +306,8 @@ func main() {
 
         // Update entities
         for _, enemy := range enemies { enemy.Update() }
-        for _, tower := range towers { tower.Update(enemies) }
+        for _, tower := range towers { tower.Update(enemies, &missiles) }
+        for _, missile := range missiles { missile.Update() }
 
         // Handle when enemies reach the destination
         for i := 0; i < len(enemies); i++ {
@@ -318,6 +321,7 @@ func main() {
 
         // Render entities
         for _, enemy := range enemies { enemy.Render(renderer) }
+        for _, missile := range missiles { missile.Render(renderer) }
         for _, tower := range towers { tower.Render(renderer) }
 
         ASSERT_TRUE(coins >= 0)

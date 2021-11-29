@@ -3,9 +3,11 @@ package tower
 import (
     "github.com/veandco/go-sdl2/sdl"
     "math"
+    "math/rand"
     "fmt"
     . "TowerDefense/common"
     "TowerDefense/enemy"
+    "TowerDefense/missile"
 )
 
 //------------------------------------------------------------------------------
@@ -95,11 +97,22 @@ func renderTower(renderer *sdl.Renderer, t ITower, bodyTexName string, headTexNa
     renderer.CopyEx(tex.Texture, nil, &rect, t.GetRotationDeg(), nil, 0)
 }
 
-func towerUpdateRotation(t ITower, enemies []enemy.IEnemy) {
+func towerDoUpdate(t ITower, enemies []enemy.IEnemy, missiles *[]missile.IMissile) {
+    // ----- Update rotation -----
     cloCol, cloRow := enemy.GetClosestEnemyPos(enemies, float64(t.GetFieldCol()), float64(t.GetFieldRow()))
     rotRad := math.Atan2(float64(cloRow - t.GetFieldRow()), float64(cloCol - t.GetFieldCol()))
-    rotDeg := rotRad * (180/math.Pi) + 90
+    rotDeg := RadToDeg(rotRad)
     t.SetRotationDeg(t.GetRotationDeg() + (rotDeg - t.GetRotationDeg()) / 10)
+
+    // ----- Spawn missile if needed -----
+    if rand.Int() % 120 == 0 {
+        miss := missile.CannonBall{
+                XPos: int32(float64(t.GetFieldCol())*FIELD_SIZE_PX+FIELD_SIZE_PX/4),
+                YPos: int32(float64(t.GetFieldRow())*FIELD_SIZE_PX+FIELD_SIZE_PX/4),
+                RotationRad: DegToRad(t.GetRotationDeg()),
+                Speed: 10}
+        *missiles = append(*missiles, &miss)
+    }
 }
 
 func towerCheckCursorHover(t ITower, renderer *sdl.Renderer, x int32, y int32) {
@@ -126,7 +139,7 @@ type ITower interface {
 
     CheckCursorHover(renderer *sdl.Renderer, x int32, y int32)
 
-    Update(enemies []enemy.IEnemy)
+    Update(enemies []enemy.IEnemy, missiles *[]missile.IMissile)
 
     Render(renderer *sdl.Renderer)
 }
@@ -160,8 +173,8 @@ func (c *Cannon) CheckCursorHover(renderer *sdl.Renderer, x int32, y int32) {
     towerCheckCursorHover(c, renderer, x, y)
 }
 
-func (c *Cannon) Update(enemies []enemy.IEnemy) {
-    towerUpdateRotation(c, enemies)
+func (c *Cannon) Update(enemies []enemy.IEnemy, missiles *[]missile.IMissile) {
+    towerDoUpdate(c, enemies, missiles)
 }
 
 func (c *Cannon) Render(renderer *sdl.Renderer) {
@@ -196,8 +209,8 @@ func (t *RocketTower) CheckCursorHover(renderer *sdl.Renderer, x int32, y int32)
     towerCheckCursorHover(t, renderer, x, y)
 }
 
-func (t *RocketTower) Update(enemies []enemy.IEnemy) {
-    towerUpdateRotation(t, enemies)
+func (t *RocketTower) Update(enemies []enemy.IEnemy, missiles *[]missile.IMissile) {
+    towerDoUpdate(t, enemies, missiles)
 }
 
 func (t *RocketTower) Render(renderer *sdl.Renderer) {

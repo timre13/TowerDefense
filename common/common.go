@@ -5,6 +5,7 @@ import (
     "github.com/veandco/go-sdl2/ttf"
     "runtime"
     "strings"
+    "math"
 )
 
 //-------------------------------------------------------------------------------
@@ -143,6 +144,14 @@ func IsInsideWorld(x int32, y int32) bool {
 
 func Lerp(a float64, b float64, t float64) float64 {
     return a + t * (b - a)
+}
+
+func DegToRad(degs float64) float64 {
+    return (degs - 90.0) / 180.0 * math.Pi
+}
+
+func RadToDeg(rads float64) float64 {
+    return rads * (180 / math.Pi) + 90
 }
 
 //-------------------------------------------------------------------------------
