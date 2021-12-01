@@ -17,21 +17,21 @@ type IMissile interface {
 }
 
 type CannonBall struct {
-    XPos int32
-    YPos int32
+    Col float64
+    Row float64
     RotationRad float64
-    Speed int32
+    Speed float64
 }
 var _ IMissile = (*CannonBall)(nil)
 
-func (c *CannonBall) GetXPos() int32 { return c.XPos }
-func (c *CannonBall) GetYPos() int32 { return c.YPos }
+func (c *CannonBall) GetXPos() int32 { return int32(c.Col*FIELD_SIZE_PX) }
+func (c *CannonBall) GetYPos() int32 { return int32(c.Row*FIELD_SIZE_PX) }
 func (c *CannonBall) GetTexRotationDeg() float64 { return 0 }
 
 func (c *CannonBall) Update() {
     ASSERT_TRUE(c.Speed > 0)
-    c.XPos += int32(math.Cos(c.RotationRad) * float64(c.Speed))
-    c.YPos += int32(math.Sin(c.RotationRad) * float64(c.Speed))
+    c.Col += math.Cos(c.RotationRad) * float64(c.Speed)
+    c.Row += math.Sin(c.RotationRad) * float64(c.Speed)
 }
 
 func (c *CannonBall) Render(renderer *sdl.Renderer) {

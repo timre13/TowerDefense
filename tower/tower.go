@@ -107,10 +107,10 @@ func towerDoUpdate(t ITower, enemies []enemy.IEnemy, missiles *[]missile.IMissil
     // ----- Spawn missile if needed -----
     if rand.Int() % 120 == 0 {
         miss := missile.CannonBall{
-                XPos: int32(float64(t.GetFieldCol())*FIELD_SIZE_PX+FIELD_SIZE_PX/4),
-                YPos: int32(float64(t.GetFieldRow())*FIELD_SIZE_PX+FIELD_SIZE_PX/4),
+                Col: float64(t.GetFieldCol())+0.25,
+                Row: float64(t.GetFieldRow())+0.25,
                 RotationRad: DegToRad(t.GetRotationDeg()),
-                Speed: 10}
+                Speed: 0.08}
         *missiles = append(*missiles, &miss)
     }
 }
