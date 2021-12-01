@@ -295,7 +295,7 @@ func main() {
         FIELD_SIZE_PX = math.Min(float64(winW)/MAP_WIDTH_FIELD,
                                 float64(winH-BOTTOM_BAR_HEIGHT_PX)/MAP_HEIGHT_FIELD)
 
-        if startTime % 20 == 0 && rand.Int() % 10 == 0 {
+        if startTime % 100 == 0 && rand.Int() % 10 < 8 {
             tank := enemy.Tank{Hp: 10, RotationDeg: 180}
             enemies = append(enemies, &tank)
         }

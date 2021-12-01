@@ -98,14 +98,18 @@ func renderTower(renderer *sdl.Renderer, t ITower, bodyTexName string, headTexNa
 }
 
 func towerDoUpdate(t ITower, enemies []enemy.IEnemy, missiles *[]missile.IMissile) {
-    // ----- Update rotation -----
     cloCol, cloRow := enemy.GetClosestEnemyPos(enemies, float64(t.GetFieldCol()), float64(t.GetFieldRow()))
-    rotRad := math.Atan2(float64(cloRow - t.GetFieldRow()), float64(cloCol - t.GetFieldCol()))
-    rotDeg := RadToDeg(rotRad)
-    t.SetRotationDeg(t.GetRotationDeg() + (rotDeg - t.GetRotationDeg()) / 10)
+
+    // ----- Update rotation -----
+    if cloCol != -1 && cloRow != -1 {
+        rotRad := math.Atan2(float64(cloRow - t.GetFieldRow()), float64(cloCol - t.GetFieldCol()))
+        rotDeg := RadToDeg(rotRad)
+        t.SetRotationDeg(t.GetRotationDeg() + (rotDeg - t.GetRotationDeg()) / 20)
+    }
 
     // ----- Spawn missile if needed -----
-    if rand.Int() % 120 == 0 {
+    // Don't shoot if there are no enemies, shoot randomly
+    if cloCol != -1 && cloRow != -1 && rand.Int() % 120 == 0 {
         miss := missile.CannonBall{
                 Col: float64(t.GetFieldCol())+0.25,
                 Row: float64(t.GetFieldRow())+0.25,
