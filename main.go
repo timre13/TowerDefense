@@ -307,22 +307,32 @@ func main() {
         // Update entities
         for _, enemy := range enemies { enemy.Update() }
         for _, tower := range towers { tower.Update(enemies, &missiles) }
-        for _, missile := range missiles { missile.Update() }
+        for _, missile := range missiles { missile.Update(enemies) }
 
-        // Handle when enemies reach the destination
+        // Handle when missiles hit target
+        for i := 0; i < len(missiles); i++ {
+            if missiles[i].HasHit() {
+                missiles = append(missiles[:i], missiles[i+1:]...)
+            }
+        }
+
+        // Handle when enemies reach the destination or die
         for i := 0; i < len(enemies); i++ {
             if enemies[i].HasArrivedToDestination() {
                 enemies = append(enemies[:i], enemies[i+1:]...)
                 i--
 
                 hp -= 5+rand.Intn(20)
+            } else if enemies[i].GetHP() <= 0 {
+                enemies = append(enemies[:i], enemies[i+1:]...)
+                coins += 2+rand.Intn(5)
             }
         }
 
         // Render entities
         for _, enemy := range enemies { enemy.Render(renderer) }
-        for _, missile := range missiles { missile.Render(renderer) }
         for _, tower := range towers { tower.Render(renderer) }
+        for _, missile := range missiles { missile.Render(renderer) }
 
         ASSERT_TRUE(coins >= 0)
         drawBottomBar(renderer, winW, winH, coins, hp)

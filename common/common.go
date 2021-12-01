@@ -142,6 +142,12 @@ func IsInsideWorld(x int32, y int32) bool {
            y >= 0 && float64(y) < MAP_HEIGHT_FIELD*FIELD_SIZE_PX
 }
 
+func CalcDistance(a Vec2DF, b Vec2DF) float64 {
+    xLen := math.Abs(a.X - b.X)
+    yLen := math.Abs(a.Y - b.Y)
+    return math.Sqrt(xLen*xLen + yLen*yLen)
+}
+
 func Lerp(a float64, b float64, t float64) float64 {
     return a + t * (b - a)
 }

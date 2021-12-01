@@ -2,7 +2,6 @@ package enemy
 
 import (
     "github.com/veandco/go-sdl2/sdl"
-    "math"
     . "TowerDefense/common"
 )
 
@@ -10,6 +9,13 @@ import (
 
 func renderEnemy(renderer *sdl.Renderer, e IEnemy) {
     tex := TEXTURES[TEXTURE_FILENAME_TANK]
+
+    // If it is being damaged
+    if e.GetState() >= ENEMY_STATE_DAMAGED_MIN && e.GetState() <= ENEMY_STATE_DAMAGED_MAX {
+        tex.Texture.SetColorMod(255, 200, 200)
+    } else {
+        tex.Texture.SetColorMod(255, 255, 255)
+    }
     rect := sdl.Rect{
         X: e.GetXPos(), Y: e.GetYPos(),
         W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}
@@ -17,6 +23,13 @@ func renderEnemy(renderer *sdl.Renderer, e IEnemy) {
 }
 
 //-------------------------------------------------------------------------------
+
+type EnemyState int
+const (
+    ENEMY_STATE_NORMAL          EnemyState = 0
+    ENEMY_STATE_DAMAGED_MIN     EnemyState = 1
+    ENEMY_STATE_DAMAGED_MAX     EnemyState = 20
+)
 
 type IEnemy interface {
     GetFieldCol() int32
@@ -26,8 +39,11 @@ type IEnemy interface {
     GetHP() int
     GetRotationDeg() float64
     HasArrivedToDestination() bool
+    GetState() EnemyState
 
     setRotationDeg(val float64)
+
+    Damage(amount int)
 
     Update()
 
@@ -43,6 +59,7 @@ type Tank struct {
     roadI int
     roadOffset int
 
+    state EnemyState
 }
 var _ IEnemy = (*Tank)(nil)
 
@@ -74,9 +91,22 @@ func (t *Tank) HasArrivedToDestination() bool {
     return t.roadI >= len(ROAD_COORDS)-1
 }
 
+func (t *Tank) GetState() EnemyState {
+    return t.state
+}
+
 func (t *Tank) setRotationDeg(val float64) { t.RotationDeg = val }
 
+func (t *Tank) Damage(amount int) {
+    t.Hp -= amount
+    t.state = ENEMY_STATE_DAMAGED_MAX
+}
+
 func (t *Tank) Update() {
+    if t.state > ENEMY_STATE_NORMAL && t.state <= ENEMY_STATE_DAMAGED_MAX {
+        t.state--
+    }
+
     t.roadOffset += 3
     if t.roadOffset >= 100 {
         t.roadI++
@@ -114,12 +144,6 @@ func (t *Tank) Render(renderer *sdl.Renderer) {
 
 //-------------------------------------------------------------------------------
 
-func calcDistance(a Vec2DF, b Vec2DF) float64 {
-    xLen := math.Abs(a.X - b.X)
-    yLen := math.Abs(a.Y - b.Y)
-    return math.Sqrt(xLen*xLen + yLen*yLen)
-}
-
 func GetClosestEnemyPos(enemies []IEnemy, col float64, row float64) (int32, int32) {
     if len(enemies) == 0 {
         return -1, -1
@@ -128,7 +152,7 @@ func GetClosestEnemyPos(enemies []IEnemy, col float64, row float64) (int32, int3
     closestDist := -1.0
     closestI := -1
     for i, enemy := range enemies {
-        dist := calcDistance(
+        dist := CalcDistance(
             Vec2DF{X: col, Y: row},
             Vec2DF{X: float64(enemy.GetFieldCol()), Y: float64(enemy.GetFieldRow())})
         // If this is the first checked or closer than the closest one
