@@ -76,6 +76,7 @@ const TEXTURE_DIR_PATH = "img"
 const (
     TEXTURE_FILENAME_COIN               = "coin/coin.png"
     TEXTURE_FILENAME_HP                 = "hp/hp.png"
+    TEXTURE_FILENAME_PARTICLE           = "particle/particle.png"
 
     TEXTURE_FILENAME_CANNON_BASE        = "cannon/base.png"
     TEXTURE_FILENAME_CANNON_HEAD        = "cannon/head.png"
@@ -91,6 +92,7 @@ const (
 var TEXTURES = map[string]*Texture{
     TEXTURE_FILENAME_COIN:              nil,
     TEXTURE_FILENAME_HP:                nil,
+    TEXTURE_FILENAME_PARTICLE:          nil,
 
     TEXTURE_FILENAME_CANNON_BASE:       nil,
     TEXTURE_FILENAME_CANNON_HEAD:       nil,

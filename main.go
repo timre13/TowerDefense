@@ -12,6 +12,7 @@ import (
     "TowerDefense/tower"
     "TowerDefense/enemy"
     "TowerDefense/missile"
+    "TowerDefense/particle_source"
 )
 
 
@@ -158,6 +159,7 @@ func main() {
     var towers []tower.ITower
     var enemies []enemy.IEnemy
     var missiles []missile.IMissile
+    var partsrcs []*particle_source.ParticleSource
 
     placedTowerType := tower.TOWER_TYPE_NONE
     var previewTower tower.ITower
@@ -311,6 +313,7 @@ func main() {
         for _, enemy := range enemies { enemy.Update() }
         for _, tower := range towers { tower.Update(enemies, &missiles) }
         for _, missile := range missiles { missile.Update(enemies) }
+        for _, ps := range partsrcs { ps.Update() }
 
         // Handle when missiles hit target
         for i := 0; i < len(missiles); i++ {
@@ -327,8 +330,21 @@ func main() {
 
                 hp -= 5+rand.Intn(20)
             } else if enemies[i].GetHP() <= 0 {
+                // Create particle source at the death position
+                parts := particle_source.NewParticleSource(
+                    enemies[i].GetXPos()+int32(FIELD_SIZE_PX/2), enemies[i].GetYPos()+int32(FIELD_SIZE_PX/2),
+                    30, particle_source.PARTSRC_TYPE_SMOKE)
+                partsrcs = append(partsrcs, &parts)
+
                 enemies = append(enemies[:i], enemies[i+1:]...)
                 coins += 2+rand.Intn(5)
+            }
+        }
+
+        // Remove expired particle sources
+        for i := 0; i < len(partsrcs); i++ {
+            if !partsrcs[i].IsAlive() && !partsrcs[i].HasParticles() {
+                partsrcs = append(partsrcs[:i], partsrcs[i+1:]...)
             }
         }
 
@@ -336,6 +352,7 @@ func main() {
         for _, enemy := range enemies { enemy.Render(renderer) }
         for _, tower := range towers { tower.Render(renderer) }
         for _, missile := range missiles { missile.Render(renderer) }
+        for _, ps := range partsrcs { ps.Render(renderer) }
 
         ASSERT_TRUE(coins >= 0)
         drawBottomBar(renderer, winW, winH, coins, hp)
