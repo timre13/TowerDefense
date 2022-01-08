@@ -110,12 +110,26 @@ func towerDoUpdate(t ITower, enemies []enemy.IEnemy, missiles *[]missile.IMissil
     // ----- Spawn missile if needed -----
     // Don't shoot if there are no enemies, shoot randomly
     if cloCol != -1 && cloRow != -1 && rand.Int() % 120 == 0 {
-        miss := missile.CannonBall{
-                Col: float64(t.GetFieldCol())+0.25,
-                Row: float64(t.GetFieldRow())+0.25,
-                RotationRad: DegToRad(t.GetRotationDeg()),
-                Speed: 0.08}
-        *missiles = append(*missiles, &miss)
+        var miss missile.IMissile;
+        switch t.(type) {
+        case *Cannon:
+            miss = &missile.CannonBall{
+                    Col: float64(t.GetFieldCol())+0.25,
+                    Row: float64(t.GetFieldRow())+0.25,
+                    RotationRad: DegToRad(t.GetRotationDeg()),
+                    Speed: 0.08}
+
+        case *RocketTower:
+            miss = &missile.Rocket{
+                    Col: float64(t.GetFieldCol())+0.25,
+                    Row: float64(t.GetFieldRow())+0.25,
+                    RotationRad: DegToRad(t.GetRotationDeg()),
+                    Speed: 0.08}
+
+        default:
+            panic(t)
+        }
+        *missiles = append(*missiles, miss)
     }
 }
 

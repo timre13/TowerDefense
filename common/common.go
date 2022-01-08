@@ -75,23 +75,31 @@ const TEXTURE_DIR_PATH = "img"
 const (
     TEXTURE_FILENAME_COIN               = "coin/coin.png"
     TEXTURE_FILENAME_HP                 = "hp/hp.png"
+
     TEXTURE_FILENAME_CANNON_BASE        = "cannon/base.png"
     TEXTURE_FILENAME_CANNON_HEAD        = "cannon/head.png"
+    TEXTURE_FILENAME_CANNONBALL         = "cannonball/cannonball.png"
+
     TEXTURE_FILENAME_ROCKETTOWER_BASE   = "rocket_tower/base.png"
     TEXTURE_FILENAME_ROCKETTOWER_HEAD   = "rocket_tower/head.png"
+    TEXTURE_FILENAME_ROCKET             = "rocket/rocket.png"
+
     TEXTURE_FILENAME_TANK               = "tank/tank.png"
-    TEXTURE_FILENAME_CANNONBALL         = "cannonball/cannonball.png"
 )
 
 var TEXTURES = map[string]*Texture{
     TEXTURE_FILENAME_COIN:              nil,
     TEXTURE_FILENAME_HP:                nil,
+
     TEXTURE_FILENAME_CANNON_BASE:       nil,
     TEXTURE_FILENAME_CANNON_HEAD:       nil,
+    TEXTURE_FILENAME_CANNONBALL:        nil,
+
     TEXTURE_FILENAME_ROCKETTOWER_BASE:  nil,
     TEXTURE_FILENAME_ROCKETTOWER_HEAD:  nil,
+    TEXTURE_FILENAME_ROCKET:            nil,
+
     TEXTURE_FILENAME_TANK:              nil,
-    TEXTURE_FILENAME_CANNONBALL:        nil,
 }
 
 //-------------------------------------------------------------------------------
