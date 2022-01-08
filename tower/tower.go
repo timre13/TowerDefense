@@ -130,7 +130,7 @@ func towerDoUpdate(t ITower, enemies []enemy.IEnemy, missiles *[]missile.IMissil
                     Col: float64(t.GetFieldCol())+0.25,
                     Row: float64(t.GetFieldRow())+0.25,
                     RotationRad: DegToRad(t.GetRotationDeg()),
-                    Speed: 0.08}
+                    Speed: 0.15}
 
         default:
             panic(t)
