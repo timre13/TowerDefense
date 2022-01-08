@@ -14,9 +14,9 @@
    id="svg8"
    inkscape:version="1.0.2 (e86c870879, 2021-01-15)"
    sodipodi:docname="cannon.svg"
-   inkscape:export-filename="/home/mike/programming/go/TowerDefense/img/cannon/base.png"
-   inkscape:export-xdpi="192"
-   inkscape:export-ydpi="192">
+   inkscape:export-filename="/home/mike/programming/go/TowerDefense/img/cannon/head.png"
+   inkscape:export-xdpi="96.000008"
+   inkscape:export-ydpi="96.000008">
   <defs
      id="defs2">
     <inkscape:path-effect
@@ -54,8 +54,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.2740096"
-     inkscape:cx="142.27335"
-     inkscape:cy="174.10406"
+     inkscape:cx="220.09498"
+     inkscape:cy="212.09921"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"

@@ -17,6 +17,29 @@ import (
 
 //-------------------------------------------------------------------------------
 
+func loadTextures(rend* sdl.Renderer) {
+    fmt.Printf("Loading %d textures\n", len(TEXTURES))
+    i := 0
+    for fileName := range TEXTURES {
+        path := TEXTURE_DIR_PATH+string(os.PathSeparator)+fileName
+        fmt.Printf("[%d/%d] Loading \"%s\"\n", i+1, len(TEXTURES), path)
+        surface, err := img.Load(path)
+        CheckErr(err)
+
+        if surface.W != surface.H {
+            ShowErrAndPanic(fmt.Sprintf("Non-rectangular texture: %s: %dx%d", path, surface.W, surface.H))
+        }
+
+        texture, err := rend.CreateTextureFromSurface(surface)
+        CheckErr(err)
+        tex := Texture{Path: path, Texture: texture, Width: surface.W, Height: surface.H}
+        surface.Free()
+        TEXTURES[fileName] = &tex
+        fmt.Printf("Loaded \"%s\", size: %dx%d\n", fileName, tex.Width, tex.Height)
+        i++
+    }
+}
+
 func drawCheckerBg(renderer *sdl.Renderer) {
     renderer.SetDrawColor(COLOR_BG_1.R, COLOR_BG_1.G, COLOR_BG_1.B, COLOR_BG_1.A)
     renderer.Clear()
@@ -120,27 +143,7 @@ func main() {
     renderer.Clear()
     renderer.Present()
 
-    fmt.Printf("Loading %d textures\n", len(TEXTURES))
-    i := 0
-    for fileName := range TEXTURES {
-        path := TEXTURE_DIR_PATH+string(os.PathSeparator)+fileName
-        fmt.Printf("[%d/%d] Loading \"%s\"\n", i+1, len(TEXTURES), path)
-        surface, err := img.Load(path)
-        CheckErr(err)
-
-        if surface.W != surface.H {
-            ShowErrAndPanic(fmt.Sprintf("Non-rectangular texture: %s: %dx%d", path, surface.W, surface.H))
-        }
-
-        texture, err := renderer.CreateTextureFromSurface(surface)
-        CheckErr(err)
-        tex := Texture{Texture: texture, Width: surface.W, Height: surface.H}
-        surface.Free()
-        TEXTURES[fileName] = &tex
-        fmt.Printf("Loaded \"%s\", size: %dx%d\n", fileName, tex.Width, tex.Height)
-        i++
-    }
-    fmt.Println("Textures:", TEXTURES)
+    loadTextures(renderer);
 
     fmt.Println("Loading font: "+FONT_FILE_PATH)
     OpenFont(renderer, FONT_FILE_PATH)

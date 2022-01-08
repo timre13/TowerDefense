@@ -65,6 +65,7 @@ var ROAD_COORDS = [...]Vec2D{
 //-------------------------------------------------------------------------------
 
 type Texture struct {
+    Path string
     Texture *sdl.Texture
     Width int32
     Height int32
@@ -101,6 +102,8 @@ var TEXTURES = map[string]*Texture{
 
     TEXTURE_FILENAME_TANK:              nil,
 }
+
+const TEXTURE_SIZE = 512
 
 //-------------------------------------------------------------------------------
 

@@ -15,8 +15,8 @@
    inkscape:version="1.0.2 (e86c870879, 2021-01-15)"
    sodipodi:docname="rocket.svg"
    inkscape:export-filename="/home/mike/programming/go/TowerDefense/img/rocket/rocket.png"
-   inkscape:export-xdpi="12.000001"
-   inkscape:export-ydpi="12.000001">
+   inkscape:export-xdpi="96.000008"
+   inkscape:export-ydpi="96.000008">
   <defs
      id="defs2">
     <inkscape:path-effect
@@ -27,7 +27,7 @@
        id="path-effect841"
        is_visible="true"
        lpeversion="1"
-       mode="X"
+       mode="vertical"
        discard_orig_path="false"
        fuse_paths="true"
        oposite_fuse="false"

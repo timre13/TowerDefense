@@ -5,6 +5,7 @@ import (
     . "TowerDefense/common"
     "TowerDefense/enemy"
     "math"
+    "fmt"
 )
 
 //------------------------------------------------------------------------------
@@ -26,6 +27,9 @@ func missileDoUpdate(m IMissile, enemies []enemy.IEnemy) {
 
 func missileRender(renderer *sdl.Renderer, m IMissile, texName string) {
     tex := TEXTURES[texName]
+    if tex.Width != TEXTURE_SIZE || tex.Height != TEXTURE_SIZE {
+        panic("Missile: Invalid texture size: "+fmt.Sprintf("%v", tex))
+    }
     rect := sdl.Rect{
         X: m.GetXPos(), Y: m.GetYPos(),
         W: int32(FIELD_SIZE_PX), H: int32(FIELD_SIZE_PX)}

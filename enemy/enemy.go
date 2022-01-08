@@ -3,12 +3,16 @@ package enemy
 import (
     "github.com/veandco/go-sdl2/sdl"
     . "TowerDefense/common"
+    "fmt"
 )
 
 //-------------------------------------------------------------------------------
 
 func renderEnemy(renderer *sdl.Renderer, e IEnemy) {
     tex := TEXTURES[TEXTURE_FILENAME_TANK]
+    if tex.Width != TEXTURE_SIZE || tex.Height != TEXTURE_SIZE {
+        panic("Enemy: Invalid texture size: "+fmt.Sprintf("%v", tex))
+    }
 
     // If it is being damaged
     if e.GetState() >= ENEMY_STATE_DAMAGED_MIN && e.GetState() <= ENEMY_STATE_DAMAGED_MAX {

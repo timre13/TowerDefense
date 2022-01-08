@@ -64,6 +64,9 @@ func renderTower(renderer *sdl.Renderer, t ITower, bodyTexName string, headTexNa
     // ----- Render body -----
 
     tex := TEXTURES[bodyTexName]
+    if tex.Width != TEXTURE_SIZE || tex.Height != TEXTURE_SIZE {
+        panic("Tower head: Invalid texture size: "+fmt.Sprintf("%v", tex))
+    }
 
     if t.IsPreview() {
         tex.Texture.SetAlphaMod(128)
@@ -82,6 +85,9 @@ func renderTower(renderer *sdl.Renderer, t ITower, bodyTexName string, headTexNa
     // ----- Render head -----
 
     tex = TEXTURES[headTexName]
+    if tex.Width != TEXTURE_SIZE || tex.Height != TEXTURE_SIZE {
+        panic("Tower body: Invalid texture size: "+fmt.Sprintf("%v", tex))
+    }
 
     if t.IsPreview() {
         tex.Texture.SetAlphaMod(128)
